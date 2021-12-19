@@ -1,10 +1,10 @@
 import json
 
-from flask import request, g
+from flask import g, request
 
 from mvmusic.common.exceptions import BadRequestError
 from mvmusic.common.types import JSONEncoder
-from mvmusic.subsonic_api.types import ResponseFormat
+from .types import ResponseFormat
 
 
 def get_resp_format():

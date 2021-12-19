@@ -18,6 +18,8 @@ class BaseQuery(Query):
 class BaseModel(declarative_base()):
     __abstract__ = True
 
+    name_prefix = None
+
     id_ = Column(
         'id',
         String(36),
@@ -39,7 +41,11 @@ class BaseModel(declarative_base()):
     )
 
     def __repr__(self):
-        return f'<{self.__class__.__name__} {self.id_}>'
+        name = f'<{self.__class__.__name__} {self.id_}>'
+        if self.name_prefix:
+            name = self.name_prefix + '_' + name
+
+        return name
 
     @declared_attr
     def __tablename__(self):

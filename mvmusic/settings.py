@@ -7,8 +7,8 @@ class DefaultSettings:
     ENV = 'production'
 
     BLUEPRINTS = (
-        'mvmusic.general.urls.bp',
-        'mvmusic.subsonic_api.urls.bp',
+        'mvmusic.apps.general.urls.bp',
+        'mvmusic.apps.subsonic_api.urls.bp',
     )
 
     EXTENSIONS = (

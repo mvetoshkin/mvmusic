@@ -4,8 +4,8 @@ import os
 from flask import Blueprint
 
 from mvmusic.common.utils import to_camel_case
-from mvmusic.subsonic_api import views
-from mvmusic.subsonic_api.views import BaseView
+from . import views
+from .views import BaseView
 
 bp = Blueprint('subsonic_api', __name__, url_prefix='/rest')
 

@@ -3,7 +3,7 @@ from flask.views import View
 
 from mvmusic.common.exceptions import NotAllowedError
 from mvmusic.common.types import RequestMethod
-from mvmusic.subsonic_api.responses import make_response
+from ..responses import make_response
 
 
 class BaseView(View):
