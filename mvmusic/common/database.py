@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from mvmusic.common.utils import settings
+from mvmusic.settings import settings
 
 
 class DB:

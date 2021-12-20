@@ -10,7 +10,8 @@ from mvmusic.common.exceptions import AccessDeniedError, AppException, \
     AppValueError, BadRequestError, NoExtensionException, NotFoundError, \
     UnauthorizedError
 from mvmusic.common.exceptions import ModelKeyError
-from mvmusic.common.utils import import_object, settings
+from mvmusic.common.utils import import_object
+from mvmusic.settings import settings
 from ..responses import get_resp_format, \
     get_subsonic_error_code, make_response
 
