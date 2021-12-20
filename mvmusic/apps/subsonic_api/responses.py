@@ -8,7 +8,7 @@ from .types import ResponseFormat
 
 
 def get_resp_format():
-    value = request.args.get('f', 'json')
+    value = request.values.get('f', 'json')
 
     try:
         g.resp_format = ResponseFormat(value)
@@ -24,7 +24,7 @@ def get_subsonic_error_code(status):
         404: 70,
     }
 
-    return statuses.get(status)
+    return statuses.get(status, 0)
 
 
 def make_response(data, status, headers=None):
@@ -33,13 +33,13 @@ def make_response(data, status, headers=None):
     resp = {
         'subsonic-response': {
             'status': 'ok' if 200 <= status < 400 else 'failed',
-            'version': '1.16.1'
+            'version': '1.12.0'
         }
     }
 
     resp['subsonic-response'].update(data or {})
 
-    if g.resp_format == ResponseFormat.JSON:
+    if not hasattr(g, 'resp_format') or g.resp_format == ResponseFormat.JSON:
         return make_json_response(resp, headers), status, headers
 
 

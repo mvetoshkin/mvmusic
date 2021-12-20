@@ -5,7 +5,7 @@ from sqlalchemy import event
 from sqlalchemy.engine.base import Engine
 from werkzeug.exceptions import HTTPException
 
-from mvmusic.common.database import DB
+from mvmusic.common.database import db
 from mvmusic.common.exceptions import AccessDeniedError, AppException, \
     AppValueError, BadRequestError, NoExtensionException, NotFoundError, \
     UnauthorizedError
@@ -68,14 +68,13 @@ class AppFactory:
 
 def create_app():
     app = AppFactory().app
-    db = DB()
 
     @app.before_request
     def before_request():
-        get_resp_format()
-
         if app.config['DEBUG']:
             g.start = time.time()
+
+        get_resp_format()
 
     @app.after_request
     def after_request(response):
@@ -85,8 +84,8 @@ def create_app():
 
         return response
 
-    @app.teardown_appcontext
-    def teardown_appcontext(exception):
+    @app.teardown_request
+    def teardown_request(exception):
         if exception:
             db.session.rollback()
         else:

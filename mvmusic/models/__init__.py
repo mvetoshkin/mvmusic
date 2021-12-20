@@ -4,11 +4,10 @@ from uuid import uuid4
 
 import shortuuid
 from sqlalchemy import Column, DateTime, String
-from sqlalchemy.orm import Query
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.orm import Query
 
-from mvmusic.common.database import DB
-from mvmusic.common.utils import classproperty
+from mvmusic.common.database import db
 
 
 class BaseQuery(Query):
@@ -19,6 +18,7 @@ class BaseModel(declarative_base()):
     __abstract__ = True
 
     name_prefix = None
+    query = db.session.query_property(query_cls=BaseQuery)
 
     id_ = Column(
         'id',
@@ -41,20 +41,22 @@ class BaseModel(declarative_base()):
     )
 
     def __repr__(self):
-        name = f'<{self.__class__.__name__} {self.id_}>'
-        if self.name_prefix:
-            name = self.name_prefix + '_' + name
-
-        return name
+        return f'<{self.__class__.__name__} {self.id_}>'
 
     @declared_attr
     def __tablename__(self):
-        return re.sub(r'(?<!^)(?=[A-Z])', '_', self.__name__).lower()
-
-    @classproperty
-    def query(self):
-        return DB().session.query(self)
+        name = re.sub(r'(?<!^)(?=[A-Z])', '_', self.__name__).lower()
+        if self.name_prefix:
+            name = self.name_prefix + '_' + name
+        return name
 
     @property
     def short_id(self):
         return shortuuid.encode(self.id_)
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        obj = cls(*args, **kwargs)
+        db.session.add(obj)
+        db.session.flush()
+        return obj

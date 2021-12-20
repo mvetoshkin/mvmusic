@@ -3,7 +3,7 @@ from . import BaseView
 
 class GetLicenseView(BaseView):
     # noinspection PyMethodMayBeStatic
-    def get(self):
+    def process_request(self):
         return {
             'license': {
                 'valid': 'true'

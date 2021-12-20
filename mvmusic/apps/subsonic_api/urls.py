@@ -21,5 +21,6 @@ for file in os.listdir(os.path.dirname(views.__file__)):
             if obj != BaseView and issubclass(obj, BaseView):
                 path = to_camel_case(view_name)
                 as_view = getattr(obj, 'as_view')
-                bp.add_url_rule(f'/{path}',
-                                view_func=as_view(view_name + '_view'))
+                view_func = as_view(view_name + '_view')
+                bp.add_url_rule(f'/{path}', view_func=view_func)
+                bp.add_url_rule(f'/{path}.view', view_func=view_func)

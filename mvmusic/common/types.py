@@ -4,10 +4,6 @@ from datetime import date, datetime, timezone
 from uuid import UUID
 
 
-class RequestMethod(enum.Enum):
-    GET = 'get'
-
-
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, enum.Enum):

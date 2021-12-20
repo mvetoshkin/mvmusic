@@ -14,7 +14,10 @@ class DB:
 
             engine = create_engine(settings.SQLALCHEMY_DATABASE_URI)
             cls.__instance.session = scoped_session(
-                sessionmaker(autocommit=False, autoflush=False, bind=engine)
+                sessionmaker(autocommit=False, bind=engine)
             )
 
         return cls.__instance
+
+
+db = DB()
