@@ -1,5 +1,7 @@
 from functools import wraps
 
+from sqlalchemy.exc import NoResultFound
+
 from mvmusic.common.exceptions import NotFoundError
 
 
@@ -8,8 +10,9 @@ def get_one(func):
     def decorated_view(*args, **kwargs):
         query = func(*args, **kwargs)
 
-        record = query.first()
-        if not record:
+        try:
+            record = query.one()
+        except NoResultFound:
             raise NotFoundError
 
         return record
