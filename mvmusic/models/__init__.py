@@ -60,3 +60,7 @@ class BaseModel(declarative_base()):
         db.session.add(obj)
         db.session.flush()
         return obj
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.flush()
