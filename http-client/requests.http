@@ -1,0 +1,20 @@
+### Get Orders
+
+POST {{ domain }}/rest/ping.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}
+
+###
+
+POST {{ domain }}/rest/getUser.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}&username={{ user }}
+
+###
+
+POST {{ domain }}/rest/getMusicFolders.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}

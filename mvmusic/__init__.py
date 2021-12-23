@@ -1,11 +1,13 @@
 import importlib
 import os
 
+from click.exceptions import ClickException
+
 from mvmusic import models
-from mvmusic.common.database import db
 from mvmusic.cli import cli
-from mvmusic.models import BaseModel
+from mvmusic.common.database import db
 from mvmusic.logger import init_logger
+from mvmusic.models import BaseModel
 
 
 def main():
@@ -16,6 +18,8 @@ def main():
     try:
         cli.main(standalone_mode=False)
         db.session.commit()
+    except ClickException as exc:
+        exc.show()
     except Exception as exc:
         db.session.rollback()
         raise exc

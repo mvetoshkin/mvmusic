@@ -7,7 +7,7 @@ from mvmusic.common.exceptions import NotFoundError
 
 def get_one(func):
     @wraps(func)
-    def decorated_view(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         query = func(*args, **kwargs)
 
         try:
@@ -17,4 +17,4 @@ def get_one(func):
 
         return record
 
-    return decorated_view
+    return wrapper

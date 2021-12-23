@@ -8,10 +8,20 @@ from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import Query
 
 from mvmusic.common.database import db
+from mvmusic.common.decorators import get_one
+from mvmusic.common.exceptions import NotFoundError
 
 
 class BaseQuery(Query):
-    pass
+    def get(self, ident):
+        obj = super(BaseQuery, self).get(ident)
+        if not obj:
+            raise NotFoundError
+        return obj
+
+    @get_one
+    def get_by(self, **kwargs):
+        return self.filter_by(**kwargs)
 
 
 class BaseModel(declarative_base()):

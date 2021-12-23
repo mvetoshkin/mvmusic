@@ -29,7 +29,7 @@ class BaseView(View):
             password = binascii.unhexlify(password[4:]).decode()
 
         try:
-            self.current_user = User.query.get_by_name(username)
+            self.current_user = User.query.get_by(username=username)
             if not self.current_user.passwords_matched(password):
                 raise NotFoundError
 
@@ -64,7 +64,7 @@ class BaseView(View):
                 ', '.join(sorted(unknown))
             )
 
-        return {k: v for k, v in request.values.items()
+        return {k if k != 'id' else 'id_': v for k, v in request.values.items()
                 if k not in common_required}
 
     def process_request(self, *args, **kwargs):
