@@ -24,18 +24,18 @@ from mvmusic.settings import settings
 logger = logging.getLogger(__name__)
 
 
-def scan_libraries(ids=None):
+def scan_libraries(ids=None, full=False):
     if not ids:
         ids = [i.id_ for i in Library.query.all()]
 
     for id_ in ids:
-        scan_library(id_)
+        scan_library(id_, full)
 
 
-def scan_library(library_id):
+def scan_library(library_id, full=False):
     library = Library.query.get(library_id)
     scanner = Scanner(library)
-    scanner.start()
+    scanner.start(full)
 
 
 class Scanner:
@@ -45,7 +45,7 @@ class Scanner:
     def __init__(self, library):
         self.library = library
 
-    def start(self):
+    def start(self, full=False):
         logger.info(f'Scanning of the {self.library.name} library started')
 
         self.start_ts = datetime.utcnow()
@@ -53,7 +53,7 @@ class Scanner:
         self.purge()
         db.session.commit()
 
-        self.scan_media_data()
+        self.scan_media_data(full)
         # self.scan_artists()
         # self.scan_albums()
 
@@ -148,8 +148,11 @@ class Scanner:
             image.delete()
             logger.info(f'Delete image {image_path}')
 
-    def scan_media_data(self):
-        items = Media.query.filter(Media.title.is_(None))
+    def scan_media_data(self, full=False):
+        if full:
+            items = Media.query.all()
+        else:
+            items = Media.query.filter(Media.title.is_(None))
 
         for item in items:
             self.scan_media_file(item)
