@@ -156,6 +156,7 @@ class Scanner:
 
         for item in items:
             self.scan_media_file(item)
+            self.set_parent_image(item)
             db.session.commit()
 
     def scan_media_file(self, media):
@@ -337,6 +338,11 @@ class Scanner:
             media_image = file.read()
 
         return media_image == image
+
+    def set_parent_image(self, obj):
+        if obj.parent and obj.parent.image != obj.image:
+            obj.parent.image = obj.image
+            self.set_parent_image(obj.parent)
 
     def scan_artists(self):
         items = Artist.query.filter(Artist.notes.is_(None))

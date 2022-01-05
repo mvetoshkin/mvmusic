@@ -24,7 +24,7 @@ Content-Type: application/x-www-form-urlencoded
 POST {{ domain }}/rest/getMusicDirectory.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=6
+{{ req_params }}&id=f404f9ef-3dc8-4096-9ec3-bfa4ba7b19c6
 
 
 ### Get details about a given user, including which authorization roles and
