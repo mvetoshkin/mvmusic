@@ -1,5 +1,5 @@
 from . import BaseView
-from ..serializers.music_library import music_library_serializer
+from ..serializers.music_folder import music_folder_serializer
 
 
 class GetMusicFoldersView(BaseView):
@@ -7,8 +7,8 @@ class GetMusicFoldersView(BaseView):
         return {
             'musicFolders': {
                 'musicFolder': [
-                    music_library_serializer(i)
-                    for i in self.current_user.music_libraries
+                    music_folder_serializer(i)
+                    for i in self.current_user.libraries
                 ]
             }
         }

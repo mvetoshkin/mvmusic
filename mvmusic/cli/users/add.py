@@ -1,6 +1,6 @@
 import click
 
-from mvmusic.helpers.user import add_user
+from mvmusic.libs.user import add_user
 
 
 @click.command('add')

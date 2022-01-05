@@ -1,6 +1,6 @@
 import click
 
-from mvmusic.helpers.user import list_users
+from mvmusic.libs.user import list_users
 
 
 @click.command('list')

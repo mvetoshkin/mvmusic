@@ -13,5 +13,5 @@ def user_serializer(user):
         'streamRole': True,
         'jukeboxRole': False,
         'shareRole': False,
-        'folder': [i.id_ for i in user.music_libraries]
+        'folder': [i.id_ for i in user.libraries]
     }

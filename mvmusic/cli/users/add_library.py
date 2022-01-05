@@ -1,6 +1,6 @@
 import click
 
-from mvmusic.helpers.user import add_library
+from mvmusic.libs.user import add_library
 
 
 @click.command('add-library')

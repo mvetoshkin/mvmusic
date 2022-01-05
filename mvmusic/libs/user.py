@@ -1,7 +1,7 @@
 import logging
 
 from mvmusic.common.exceptions import NotFoundError
-from mvmusic.models.music_library import MusicLibrary
+from mvmusic.models.library import Library
 from mvmusic.models.user import User
 
 logger = logging.getLogger(__name__)
@@ -57,11 +57,11 @@ def add_library(user_id, library_id):
         return
 
     try:
-        library = MusicLibrary.query.get(library_id)
+        library = Library.query.get(library_id)
     except NotFoundError:
-        logger.info('Music library not found')
+        logger.info('Library not found')
         return
 
-    user.music_libraries.append(library)
+    user.libraries.append(library)
 
     logger.info(f'Library {library} was added to user {user}')

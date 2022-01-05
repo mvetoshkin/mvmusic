@@ -1,20 +1,36 @@
-### Get Orders
-
+### Used to test connectivity with the server. Takes no extra parameters.
 POST {{ domain }}/rest/ping.view
 Content-Type: application/x-www-form-urlencoded
 
 {{ req_params }}
 
-###
 
-POST {{ domain }}/rest/getUser.view
-Content-Type: application/x-www-form-urlencoded
-
-{{ req_params }}&username={{ user }}
-
-###
-
+### Returns all configured top-level music folders.
 POST {{ domain }}/rest/getMusicFolders.view
 Content-Type: application/x-www-form-urlencoded
 
 {{ req_params }}
+
+
+### Returns an indexed structure of all artists.
+POST {{ domain }}/rest/getIndexes.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}
+
+
+### Returns a listing of all files in a music directory. Typically used
+### to get list of albums for an artist, or list of songs for an album.
+POST {{ domain }}/rest/getMusicDirectory.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}&id=6
+
+
+### Get details about a given user, including which authorization roles and
+### folder access it has. Can be used to enable/disable certain features in
+### the client, such as jukebox control.
+POST {{ domain }}/rest/getUser.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}&username={{ user }}

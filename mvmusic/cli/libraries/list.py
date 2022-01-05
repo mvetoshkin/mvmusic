@@ -1,6 +1,6 @@
 import click
 
-from mvmusic.helpers.library import list_libraries
+from mvmusic.libs.library import list_libraries
 
 
 @click.command('list')

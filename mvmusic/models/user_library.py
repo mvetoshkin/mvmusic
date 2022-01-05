@@ -3,7 +3,7 @@ from sqlalchemy import Column, ForeignKey, String
 from mvmusic.models import BaseModel
 
 
-class UserMusicLibrary(BaseModel):
+class UserLibrary(BaseModel):
     id_ = None
 
     user_id = Column(
@@ -13,9 +13,9 @@ class UserMusicLibrary(BaseModel):
         primary_key=True
     )
 
-    music_library_id = Column(
+    library_id = Column(
         String,
-        ForeignKey('music_library.id', ondelete='cascade'),
-        nullable=True,
+        ForeignKey('library.id', ondelete='cascade'),
+        nullable=False,
         primary_key=True
     )

@@ -2,13 +2,13 @@ import logging
 import os
 
 from mvmusic.common.exceptions import NotFoundError
-from mvmusic.models.music_library import MusicLibrary
+from mvmusic.models.library import Library
 
 logger = logging.getLogger(__name__)
 
 
 def list_libraries():
-    for lib in MusicLibrary.query.all():
+    for lib in Library.query.all():
         print(f'{lib.id_:40} {lib.name:20} {lib.path}')
 
 
@@ -17,7 +17,7 @@ def add_library(path, name):
         name = path.rpartition(os.path.sep)[-1]
 
     try:
-        MusicLibrary.query.get_by(path=path)
+        Library.query.get_by(path=path)
         logger.info('Library with given path exists')
         return
     except NotFoundError:
@@ -26,7 +26,7 @@ def add_library(path, name):
     if not os.path.exists(path):
         raise NotFoundError('Given path not found')
 
-    library = MusicLibrary.create(
+    library = Library.create(
         path=path,
         name=name
     )

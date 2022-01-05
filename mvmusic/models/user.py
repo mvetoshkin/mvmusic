@@ -6,29 +6,15 @@ from . import BaseModel
 
 
 class User(BaseModel):
-    username = Column(
-        String(128),
-        nullable=False,
-        unique=True,
-        index=True
-    )
+    username = Column(String(128), nullable=False, unique=True, index=True)
+    password = Column(String(128), nullable=False)
+    is_admin = Column(Boolean, nullable=False, default=False)
 
-    password = Column(
-        String(128),
-        nullable=False
-    )
-
-    is_admin = Column(
-        Boolean,
-        nullable=False,
-        default=False
-    )
-
-    music_libraries = relationship(
-        'MusicLibrary',
-        secondary='user_music_library',
+    libraries = relationship(
+        'Library',
+        secondary='user_library',
         lazy='joined',
-        order_by='MusicLibrary.name'
+        order_by='Library.name'
     )
 
     # noinspection PyUnusedLocal

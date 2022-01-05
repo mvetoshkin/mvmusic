@@ -7,20 +7,22 @@ from mvmusic.common.exceptions import NoSettingsModuleSpecified
 
 
 class DefaultSettings:
-    DEBUG = False
-    DEBUG_SQL = False
-    ENV = 'production'
-
     BLUEPRINTS = (
         'mvmusic.apps.general.urls.bp',
         'mvmusic.apps.subsonic_api.urls.bp',
     )
+
+    CACHE_PATH = '/var/cache/mvmusic'
+    DEBUG = False
+    DEBUG_SQL = False
+    ENV = 'production'
 
     EXTENSIONS = (
         'mvmusic.common.extensions.cors',
     )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SUBSONIC_API_IGNORE_ARTICLES = 'The El La Los Las Le Les'
 
     # noinspection PyPep8Naming
     @property
@@ -38,6 +40,9 @@ class DefaultSettings:
 class DevelopmentSettings(DefaultSettings):
     DEBUG = True
     DEBUG_SQL = DEBUG
+    CACHE_PATH = os.path.join(
+        os.path.dirname(mvmusic.__file__).rpartition(os.path.sep)[0], '.cache'
+    )
     ENV = 'development'
 
 

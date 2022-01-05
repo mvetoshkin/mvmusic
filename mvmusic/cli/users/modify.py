@@ -1,6 +1,6 @@
 import click
 
-from mvmusic.helpers.user import modify_user
+from mvmusic.libs.user import modify_user
 
 
 @click.command('modify')
