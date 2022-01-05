@@ -1,7 +1,7 @@
 from mvmusic.models.media import Media
 
 
-def child_serializer(child: Media):
+def media_serializer(child: Media):
     return {
         'id': child.id_,
         'parent': child.parent_id,
@@ -11,7 +11,7 @@ def child_serializer(child: Media):
         'artist': child.artist.name,
         'track': child.track,
         'year': child.year,
-        'genre': child.genres[0].name,
+        'genre': child.genres[0].name if child.genres else None,
         'coverArt': child.image_id,
         'size': child.size,
         'contentType': child.content_type,

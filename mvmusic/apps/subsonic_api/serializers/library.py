@@ -1,4 +1,4 @@
-def music_folder_serializer(library):
+def library_serializer(library):
     return {
         'id': library.id_,
         'name': library.name

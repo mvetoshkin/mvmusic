@@ -3,35 +3,44 @@ from collections import defaultdict
 from datetime import datetime
 from operator import attrgetter
 
+from mvmusic.common.exceptions import AccessDeniedError
 from mvmusic.models.directory import Directory
-from mvmusic.models.library import Library
 from mvmusic.models.media import Media
 from mvmusic.settings import settings
 from . import BaseView
-from ..serializers.artist import artist_serializer
-from ..serializers.child import child_serializer
+from ..serializers.directory import directory_serializer
+from ..serializers.media import media_serializer
 from ..utils import ignored_articles
 
 
 class GetIndexesView(BaseView):
-    def process_request(self, music_folder_id=None, if_modified_since=0):
-        last_modified = datetime.fromtimestamp(if_modified_since / 100)
+    def process_request(self, musicfolderid=None, ifmodifiedsince=0):
+        last_modified = datetime.fromtimestamp(ifmodifiedsince / 100)
 
         libraries = self.current_user.libraries
-        if music_folder_id:
-            libraries = [Library.query.get(music_folder_id)]
+        if musicfolderid:
+            libraries = [i for i in libraries if i.id_ == musicfolderid]
 
-        indexes_resp, indexes_lm = self.get_indexes(libraries, last_modified)
-        children_resp, children_lm = self.get_children(libraries, last_modified)
+        if not libraries:
+            raise AccessDeniedError
+
+        indexes, indexes_lm = self.get_indexes(libraries, last_modified)
+        children, children_lm = self.get_children(libraries, last_modified)
         last_modified = max(indexes_lm, children_lm)
 
+        resp = {
+            'lastModified': int(last_modified.timestamp() * 1000),
+            'ignoredArticles': settings.SUBSONIC_API_IGNORE_ARTICLES
+        }
+
+        if indexes:
+            resp['index'] = indexes
+
+        if children:
+            resp['child'] = children
+
         return {
-            'indexes': {
-                'lastModified': int(last_modified.timestamp() * 1000),
-                'ignoredArticles': settings.SUBSONIC_API_IGNORE_ARTICLES,
-                'index': indexes_resp,
-                'child': children_resp
-            }
+            'indexes': resp
         }
 
     @staticmethod
@@ -44,31 +53,31 @@ class GetIndexesView(BaseView):
         if last_modified:
             filters.append(Directory.last_seen >= last_modified)
 
-        indexes = defaultdict(list)
+        indexes_raw = defaultdict(list)
         ignored = ignored_articles()
 
-        for d in Directory.query.filter(*filters):
-            name = ignored.sub('', d.name) if ignored else d.name
+        for item in Directory.query.filter(*filters):
+            name = ignored.sub('', item.name) if ignored else item.name
 
             index = name[0].upper()
             if index in string.digits:
                 index = '#'
 
-            indexes[index].append(d)
-            if not last_modified or d.last_seen > last_modified:
-                last_modified = d.last_seen
+            indexes_raw[index].append(item)
+            if not last_modified or item.last_seen > last_modified:
+                last_modified = item.last_seen
 
-        indexes_resp = []
-        for key in sorted(indexes):
-            indexes_resp.append({
-                'name': key,
+        indexes = []
+        for item in sorted(indexes_raw):
+            indexes.append({
+                'name': item,
                 'artist': [
-                    artist_serializer(i)
-                    for i in sorted(indexes[key], key=attrgetter('name'))
+                    directory_serializer(i)
+                    for i in sorted(indexes_raw[item], key=attrgetter('name'))
                 ]
             })
 
-        return indexes_resp, last_modified
+        return indexes, last_modified
 
     @staticmethod
     def get_children(libraries, last_modified):
@@ -80,11 +89,11 @@ class GetIndexesView(BaseView):
         if last_modified:
             filters.append(Media.last_seen >= last_modified)
 
-        children_resp = []
+        children = []
 
-        for m in Media.query.filter(*filters).order_by(Media.title):
-            children_resp.append(child_serializer(m))
-            if not last_modified or m.last_seen > last_modified:
-                last_modified = m.last_seen
+        for item in Media.query.filter(*filters).order_by(Media.title):
+            children.append(media_serializer(item))
+            if not last_modified or item.last_seen > last_modified:
+                last_modified = item.last_seen
 
-        return children_resp, last_modified
+        return children, last_modified

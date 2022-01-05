@@ -50,22 +50,34 @@ class BaseView(View):
             else:
                 optional.add(param_name)
 
-        missing = required - set(request.values.keys())
+        req_keys = {i.lower() for i in request.values.keys()}
+
+        missing = required - req_keys
         if missing:
             raise BadRequestError(
                 'Following required parameters are missing: ' +
                 ', '.join(sorted(missing))
             )
 
-        unknown = set(request.values.keys()) - (allowed | common_required)
+        unknown = req_keys - (allowed | common_required)
         if unknown:
             raise BadRequestError(
                 'Following parameters are unknown: ' +
                 ', '.join(sorted(unknown))
             )
 
-        return {k if k != 'id' else 'id_': v for k, v in request.values.items()
-                if k not in common_required}
+        attrs = {}
+        for k, v in request.values.items():
+            attr = k.lower()
+            if attr in common_required:
+                continue
+
+            if attr == 'id':
+                attr = 'id_'
+
+            attrs[attr] = v
+
+        return attrs
 
     def process_request(self, *args, **kwargs):
         raise NotImplementedError
