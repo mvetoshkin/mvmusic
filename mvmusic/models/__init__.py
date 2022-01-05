@@ -3,25 +3,33 @@ from datetime import datetime
 from uuid import uuid4
 
 import shortuuid
-from sqlalchemy import Column, DateTime, String, ForeignKey
+from sqlalchemy import Column, DateTime, ForeignKey, String
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import Query, relationship
 
 from mvmusic.common.database import db
-from mvmusic.common.decorators import get_one
 from mvmusic.common.exceptions import NotFoundError
 
 
 class BaseQuery(Query):
+    def one(self, *filters):
+        try:
+            if filters:
+                return self.filter(*filters).one()
+            else:
+                return super(BaseQuery, self).one()
+        except NoResultFound:
+            raise NotFoundError
+
     def get(self, ident):
         obj = super(BaseQuery, self).get(ident)
         if not obj:
             raise NotFoundError
         return obj
 
-    @get_one
     def get_by(self, **kwargs):
-        return self.filter_by(**kwargs)
+        return self.filter_by(**kwargs).one()
 
 
 class BaseModel(declarative_base()):
