@@ -56,16 +56,21 @@ class BaseView(View):
             else:
                 optional.add(param_name)
 
-        req_keys = {i.lower() for i in request.values.keys()}
+        req_attrs = set()
+        for attr in request.values.keys():
+            attr = attr.lower()
+            if attr == 'id':
+                attr = 'id_'
+            req_attrs.add(attr)
 
-        missing = required - req_keys
+        missing = required - req_attrs
         if missing:
             raise BadRequestError(
                 'Following required parameters are missing: ' +
                 ', '.join(sorted(missing))
             )
 
-        unknown = req_keys - (allowed | common_required)
+        unknown = req_attrs - (allowed | common_required)
         if unknown:
             raise BadRequestError(
                 'Following parameters are unknown: ' +
