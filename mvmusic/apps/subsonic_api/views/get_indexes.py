@@ -17,7 +17,7 @@ class GetIndexesView(BaseView):
     def process_request(self, musicfolderid=None, ifmodifiedsince=0):
         last_modified = datetime.fromtimestamp(ifmodifiedsince / 100)
 
-        libraries = self.current_user.libraries
+        libraries = self.user_libraries
         if musicfolderid:
             libraries = [i for i in libraries if i.id_ == musicfolderid]
 

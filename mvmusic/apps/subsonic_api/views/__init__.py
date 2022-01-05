@@ -7,6 +7,7 @@ from flask.views import View
 
 from mvmusic.common.exceptions import BadRequestError, NotFoundError, \
     UnauthorizedError
+from mvmusic.models.library import Library
 from mvmusic.models.user import User
 from ..responses import make_response
 
@@ -14,6 +15,11 @@ from ..responses import make_response
 class BaseView(View):
     methods = ('get', 'post',)
     current_user = None
+
+    @property
+    def user_libraries(self):
+        return Library.query.all() if self.current_user.is_admin \
+            else self.current_user.libraries
 
     def dispatch_request(self):
         kwargs = self.get_kwargs()
