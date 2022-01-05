@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Numeric, ForeignKey, Boolean
+from sqlalchemy import Column, String, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 
 from mvmusic.models import BaseModel, ImageModel, PathModel
@@ -6,11 +6,11 @@ from mvmusic.models import BaseModel, ImageModel, PathModel
 
 class Media(BaseModel, PathModel, ImageModel):
     title: Column = Column(String)
-    year = Column(Numeric)
-    track = Column(Numeric)
-    duration = Column(Numeric)
-    bitrate = Column(Numeric)
-    size = Column(Numeric)
+    year = Column(Integer)
+    track = Column(Integer)
+    duration = Column(Integer)
+    bitrate = Column(Integer)
+    size = Column(Integer)
     content_type = Column(String)
     is_video = Column(Boolean)
 
