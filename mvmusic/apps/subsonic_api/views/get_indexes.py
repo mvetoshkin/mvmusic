@@ -55,8 +55,9 @@ class GetIndexesView(BaseView):
 
         indexes_raw = defaultdict(list)
         ignored = ignored_articles()
+        query = Directory.query.filter(*filters)
 
-        for item in Directory.query.filter(*filters):
+        for item in query.all():
             name = ignored.sub('', item.name) if ignored else item.name
 
             index = name[0].upper()
@@ -90,8 +91,9 @@ class GetIndexesView(BaseView):
             filters.append(Media.last_seen >= last_modified)
 
         children = []
+        query = Media.query.filter(*filters).order_by(Media.title)
 
-        for item in Media.query.filter(*filters).order_by(Media.title):
+        for item in query.all():
             children.append(media_serializer(item))
             if not last_modified or item.last_seen > last_modified:
                 last_modified = item.last_seen

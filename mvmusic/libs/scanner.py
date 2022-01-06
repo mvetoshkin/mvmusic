@@ -98,12 +98,14 @@ class Scanner:
                     )
 
     def purge(self):
-        for item in Media.query.filter(Media.last_seen < self.start_ts):
+        query = Media.query.filter(Media.last_seen < self.start_ts)
+        for item in query.all():
             item.delete()
             item_path = os.path.join(self.library.path, item.path)
             logger.info(f'Delete media {item_path}')
 
-        for item in Directory.query.filter(Directory.last_seen < self.start_ts):
+        query = Directory.query.filter(Directory.last_seen < self.start_ts)
+        for item in query.all():
             item.delete()
             item_path = os.path.join(self.library.path, item.path)
             logger.info(f'Delete folder {item_path}')
@@ -135,13 +137,13 @@ class Scanner:
 
         # delete unused images
 
-        images = Image.query.options(noload('*')).filter(
+        query = Image.query.options(noload('*')).filter(
             Image.id_.not_in(artist_sq),
             Image.id_.not_in(album_sq),
             Image.id_.not_in(media_sq)
         )
 
-        for image in images.all():
+        for image in query.all():
             image_path = os.path.join(settings.CACHE_PATH, image.path)
             if os.path.exists(image_path):
                 os.remove(image_path)
@@ -149,12 +151,12 @@ class Scanner:
             logger.info(f'Delete image {image_path}')
 
     def scan_media_data(self, full=False):
-        if full:
-            items = Media.query.all()
-        else:
-            items = Media.query.filter(Media.title.is_(None))
+        query = Media.query
 
-        for item in items:
+        if not full:
+            query = query.filter(Media.title.is_(None))
+
+        for item in query.all():
             self.scan_media_file(item)
             self.set_parent_image(item)
             db.session.commit()
@@ -345,9 +347,9 @@ class Scanner:
             self.set_parent_image(obj.parent)
 
     def scan_artists(self):
-        items = Artist.query.filter(Artist.notes.is_(None))
+        query = Artist.query.filter(Artist.notes.is_(None))
 
-        for item in items:
+        for item in query.all():
             self.scan_artist(item)
             db.session.commit()
 
@@ -356,9 +358,9 @@ class Scanner:
         pass
 
     def scan_albums(self):
-        items = Album.query.filter(Album.notes.is_(None))
+        query = Album.query.filter(Album.notes.is_(None))
 
-        for item in items:
+        for item in query.all():
             self.scan_album(item)
             db.session.commit()
 
