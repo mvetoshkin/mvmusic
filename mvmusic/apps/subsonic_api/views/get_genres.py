@@ -16,6 +16,9 @@ class GetGenresView(BaseView):
         )
 
         query = query.join(Genre.media)
+        query = query.filter(
+            Media.library_id.in_([i.id_ for i in self.user_libraries])
+        )
         query = query.group_by(Genre)
         query = query.order_by(Genre.name)
 
