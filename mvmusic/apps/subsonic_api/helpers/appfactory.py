@@ -3,6 +3,7 @@ import time
 from flask import Flask, g
 from sqlalchemy import event
 from sqlalchemy.engine.base import Engine
+# noinspection PyPackageRequirements
 from werkzeug.exceptions import HTTPException
 
 from mvmusic.common.database import db
