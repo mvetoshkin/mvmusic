@@ -1,4 +1,7 @@
-def directory_serializer(directory, as_child=False):
+from mvmusic.models.directory import Directory
+
+
+def directory_serializer(directory: Directory, as_child=False):
     resp = {
         'id': directory.id_,
     }

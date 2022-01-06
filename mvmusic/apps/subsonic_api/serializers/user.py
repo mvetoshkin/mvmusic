@@ -1,4 +1,7 @@
-def user_serializer(user):
+from mvmusic.models.user import User
+
+
+def user_serializer(user: User):
     return {
         'username': user.username,
         'scrobblingEnabled': False,
