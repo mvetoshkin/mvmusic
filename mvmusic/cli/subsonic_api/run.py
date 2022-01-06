@@ -1,6 +1,6 @@
 import click
 
-from mvmusic.apps.subsonic_api.helpers.appfactory import create_app
+from mvmusic.apps.subsonic_api.libs.appfactory import create_app
 
 
 @click.command('run')

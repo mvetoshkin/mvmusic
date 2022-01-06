@@ -3,14 +3,14 @@ from collections import defaultdict
 from datetime import datetime
 from operator import attrgetter
 
-from mvmusic.common.exceptions import AccessDeniedError
+from mvmusic.libs.exceptions import AccessDeniedError
 from mvmusic.models.directory import Directory
 from mvmusic.models.media import Media
 from mvmusic.settings import settings
 from . import BaseView
+from ..libs import ignored_articles
 from ..serializers.directory import directory_serializer
 from ..serializers.media import media_serializer
-from ..utils import ignored_articles
 
 
 class GetIndexesView(BaseView):

@@ -1,7 +1,7 @@
 import logging
 import os
 
-from mvmusic.common.exceptions import NotFoundError
+from mvmusic.libs.exceptions import NotFoundError
 from mvmusic.models.library import Library
 
 logger = logging.getLogger(__name__)

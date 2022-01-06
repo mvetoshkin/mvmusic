@@ -1,6 +1,6 @@
 from functools import wraps
 
-from mvmusic.common.exceptions import AccessDeniedError
+from mvmusic.libs.exceptions import AccessDeniedError
 
 
 def admin_required(func):

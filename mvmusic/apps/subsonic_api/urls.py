@@ -3,7 +3,7 @@ import os
 
 from flask import Blueprint
 
-from mvmusic.common.utils import to_camel_case
+from mvmusic.libs import to_camel_case
 from . import views
 from .views import BaseView
 

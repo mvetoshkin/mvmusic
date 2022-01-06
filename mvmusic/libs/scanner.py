@@ -10,8 +10,8 @@ import mutagen
 import mutagen.flac
 import mutagen.mp3
 
-from mvmusic.common.database import db
-from mvmusic.common.exceptions import NotFoundError
+from mvmusic.libs.database import db
+from mvmusic.libs.exceptions import NotFoundError
 from mvmusic.models.album import Album
 from mvmusic.models.artist import Artist
 from mvmusic.models.directory import Directory

@@ -1,20 +1,21 @@
 import time
 
-from flask import Flask, g
+from flask import Flask, g, request
 from sqlalchemy import event
 from sqlalchemy.engine.base import Engine
 # noinspection PyPackageRequirements
 from werkzeug.exceptions import HTTPException
 
-from mvmusic.common.database import db
-from mvmusic.common.exceptions import AccessDeniedError, AppException, \
+from mvmusic.libs import import_object
+from mvmusic.libs.database import db
+from mvmusic.libs.exceptions import AccessDeniedError, AppException, \
     AppValueError, BadRequestError, NoExtensionException, NotFoundError, \
     UnauthorizedError
-from mvmusic.common.exceptions import ModelKeyError
-from mvmusic.common.utils import import_object
+from mvmusic.libs.exceptions import ModelKeyError
 from mvmusic.settings import settings
-from ..responses import get_resp_format, \
-    get_subsonic_error_code, make_response
+from ..libs import get_subsonic_error_code
+from ..libs.responses import make_response
+from ..libs.types import ResponseFormat
 
 
 class AppFactory:
@@ -75,7 +76,12 @@ def create_app():
         if app.config['DEBUG']:
             g.start = time.time()
 
-        get_resp_format()
+        value = request.values.get('f', 'xml')
+
+        try:
+            g.resp_format = ResponseFormat(value)
+        except ValueError:
+            raise BadRequestError('Format not supported')
 
     @app.after_request
     def after_request(response):

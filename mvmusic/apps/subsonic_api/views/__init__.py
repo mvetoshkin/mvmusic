@@ -5,11 +5,11 @@ from inspect import Signature
 from flask import request
 from flask.views import View
 
-from mvmusic.common.exceptions import BadRequestError, NotFoundError, \
+from mvmusic.libs.exceptions import BadRequestError, NotFoundError, \
     UnauthorizedError
 from mvmusic.models.library import Library
 from mvmusic.models.user import User
-from ..responses import make_response
+from ..libs.responses import make_response
 
 
 class BaseView(View):

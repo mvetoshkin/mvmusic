@@ -1,6 +1,6 @@
 import logging
 
-from mvmusic.common.exceptions import NotFoundError
+from mvmusic.libs.exceptions import NotFoundError
 from mvmusic.models.library import Library
 from mvmusic.models.user import User
 

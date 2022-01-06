@@ -1,4 +1,4 @@
-from mvmusic.common.exceptions import AccessDeniedError
+from mvmusic.libs.exceptions import AccessDeniedError
 from mvmusic.models.user import User
 from . import BaseView
 from ..serializers.user import user_serializer

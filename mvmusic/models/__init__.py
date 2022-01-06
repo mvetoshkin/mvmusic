@@ -8,8 +8,8 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import Query, relationship
 
-from mvmusic.common.database import db
-from mvmusic.common.exceptions import NotFoundError
+from mvmusic.libs.database import db
+from mvmusic.libs.exceptions import NotFoundError
 
 
 class BaseQuery(Query):

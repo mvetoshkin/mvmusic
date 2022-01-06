@@ -1,7 +1,7 @@
+from mvmusic.models.directory import Directory
 from . import BaseView
 from ..serializers.directory import directory_serializer
 from ..serializers.media import media_serializer
-from mvmusic.models.directory import Directory
 
 
 class GetMusicDirectoryView(BaseView):

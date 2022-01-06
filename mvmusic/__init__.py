@@ -5,8 +5,8 @@ from click.exceptions import ClickException
 
 from mvmusic import models
 from mvmusic.cli import cli
-from mvmusic.common.database import db
-from mvmusic.logger import init_logger
+from mvmusic.libs.database import db
+from mvmusic.libs.logger import init_logger
 from mvmusic.models import BaseModel
 
 

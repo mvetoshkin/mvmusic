@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 
 import mvmusic
-from mvmusic.common.exceptions import NoSettingsModuleSpecified
+from mvmusic.libs.exceptions import NoSettingsModuleSpecified
 
 
 class DefaultSettings:
@@ -18,7 +18,7 @@ class DefaultSettings:
     ENV = 'production'
 
     EXTENSIONS = (
-        'mvmusic.common.extensions.cors',
+        'mvmusic.libs.extensions.cors',
     )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
