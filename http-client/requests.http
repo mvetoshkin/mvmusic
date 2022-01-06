@@ -27,6 +27,13 @@ Content-Type: application/x-www-form-urlencoded
 {{ req_params }}&id=f404f9ef-3dc8-4096-9ec3-bfa4ba7b19c6
 
 
+### Returns all genres.
+POST {{ domain }}/rest/getGenres.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}
+
+
 ### Get details about a given user, including which authorization roles and
 ### folder access it has. Can be used to enable/disable certain features in
 ### the client, such as jukebox control.
