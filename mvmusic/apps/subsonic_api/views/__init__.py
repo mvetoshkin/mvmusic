@@ -43,9 +43,10 @@ class BaseView(View):
             raise UnauthorizedError('Wrong username or password')
 
     def get_kwargs(self):
-        common_required = {'u', 'p', 'v', 'c', 'f'}
+        common_required = {'u', 'p', 'v', 'c'}
+        common_optional = {'f'}
         required = set() | common_required
-        optional = set()
+        optional = set() | common_optional
 
         params = inspect.signature(self.process_request).parameters
         allowed = set(params)
@@ -70,7 +71,7 @@ class BaseView(View):
                 ', '.join(sorted(missing))
             )
 
-        unknown = req_attrs - (allowed | common_required)
+        unknown = req_attrs - (allowed | common_required | common_optional)
         if unknown:
             raise BadRequestError(
                 'Following parameters are unknown: ' +
@@ -80,7 +81,7 @@ class BaseView(View):
         attrs = {}
         for k, v in request.values.items():
             attr = k.lower()
-            if attr in common_required:
+            if attr in common_required or attr in common_optional:
                 continue
 
             if attr == 'id':
