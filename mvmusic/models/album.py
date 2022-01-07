@@ -16,3 +16,4 @@ class Album(BaseModel, ImageModel):
     )
 
     artist = relationship('Artist', uselist=False, lazy='joined')
+    media = relationship('Media', lazy='dynamic', viewonly=True)

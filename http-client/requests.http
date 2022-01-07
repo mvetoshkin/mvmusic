@@ -27,6 +27,13 @@ Content-Type: application/x-www-form-urlencoded
 {{ req_params }}&id=f404f9ef-3dc8-4096-9ec3-bfa4ba7b19c6
 
 
+### Returns all genres.
+POST {{ domain }}/rest/getGenres.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}
+
+
 ### Similar to getIndexes, but organizes music according to ID3 tags.
 POST {{ domain }}/rest/getArtists.view
 Content-Type: application/x-www-form-urlencoded
@@ -34,11 +41,12 @@ Content-Type: application/x-www-form-urlencoded
 {{ req_params }}
 
 
-### Returns all genres.
-POST {{ domain }}/rest/getGenres.view
+### Returns details for an artist, including a list of albums. This method
+### organizes music according to ID3 tags.
+POST {{ domain }}/rest/getArtist.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}
+{{ req_params }}&id=a251bbf5-d469-48d3-b703-5dbe6f7d82b1
 
 
 ### Get details about a given user, including which authorization roles and

@@ -5,7 +5,7 @@ from mvmusic.models import BaseModel
 
 
 class Genre(BaseModel):
-    name = Column(String, nullable=False, index=True)
+    name: Column = Column(String, nullable=False, index=True)
 
     media = relationship(
         'Media',
