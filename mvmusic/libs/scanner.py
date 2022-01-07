@@ -50,12 +50,13 @@ class Scanner:
 
         self.start_ts = datetime.utcnow()
         self.scan_directory(self.library.path)
-        self.purge()
         db.session.commit()
 
         self.scan_media_data(full)
         # self.scan_artists()
         # self.scan_albums()
+
+        self.purge()
 
         logger.info(f'Scanning of the {self.library.name} library finished')
 
@@ -179,12 +180,15 @@ class Scanner:
         media.is_video = False
 
     def parse_mp3(self, media, file):
+        artist_name = self.mp3_tag(file, 'TPE2') or \
+            self.mp3_tag(file, 'TPE1')
+
         self.parse_tags(
             media,
             title=self.mp3_tag(file, 'TIT2'),
             release_date=self.mp3_tag(file, 'TDOR'),
             track=self.mp3_tag(file, 'TRCK'),
-            artist_name=self.mp3_tag(file, 'TPE1'),
+            artist_name=artist_name,
             album_name=self.mp3_tag(file, 'TALB'),
             mb_artist_id=self.mp3_tag(file, 'TXXX:MusicBrainz Artist Id'),
             mb_album_id=self.mp3_tag(file, 'TXXX:MusicBrainz Album Id'),
@@ -196,12 +200,15 @@ class Scanner:
         pictures = getattr(file, 'pictures')
         image = pictures[0].data if pictures else None
 
+        artist_name = self.flac_tag(file, 'ALBUMARTIST') or \
+            self.flac_tag(file, 'ARTIST')
+
         self.parse_tags(
             media,
             title=self.flac_tag(file, 'TITLE'),
             release_date=self.flac_tag(file, 'ORIGINALDATE'),
             track=self.flac_tag(file, 'TRACKNUMBER'),
-            artist_name=self.flac_tag(file, 'ARTIST'),
+            artist_name=artist_name,
             album_name=self.flac_tag(file, 'ALBUM'),
             mb_artist_id=self.flac_tag(file, 'MUSICBRAINZ_ARTISTID'),
             mb_album_id=self.flac_tag(file, 'MUSICBRAINZ_ALBUMID'),
