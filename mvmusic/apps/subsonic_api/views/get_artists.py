@@ -16,11 +16,11 @@ from ..serializers.artist import artist_serializer
 class GetArtistsView(BaseView):
     def process_request(self, musicfolderid=None):
         libraries = self.user_libraries
+
         if musicfolderid:
             libraries = [i for i in libraries if i.id_ == musicfolderid]
-
-        if not libraries:
-            raise AccessDeniedError
+            if not libraries:
+                raise AccessDeniedError
 
         resp = {
             'ignoredArticles': settings.SUBSONIC_API_IGNORE_ARTICLES

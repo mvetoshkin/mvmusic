@@ -16,13 +16,12 @@ from ..serializers.media import media_serializer
 class GetIndexesView(BaseView):
     def process_request(self, musicfolderid=None, ifmodifiedsince=0):
         last_modified = datetime.fromtimestamp(ifmodifiedsince / 100)
-
         libraries = self.user_libraries
+
         if musicfolderid:
             libraries = [i for i in libraries if i.id_ == musicfolderid]
-
-        if not libraries:
-            raise AccessDeniedError
+            if not libraries:
+                raise AccessDeniedError
 
         indexes, indexes_lm = self.get_indexes(libraries, last_modified)
         children, children_lm = self.get_children(libraries, last_modified)

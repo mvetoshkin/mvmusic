@@ -8,7 +8,6 @@ from ..serializers.genre import genre_serializer
 
 class GetGenresView(BaseView):
     def process_request(self):
-
         query = Media.query.with_entities(
             Genre,
             func.count(Media.id_.distinct()),

@@ -5,8 +5,8 @@ from inspect import Signature
 from flask import request
 from flask.views import View
 
-from mvmusic.libs.exceptions import BadRequestError, NotFoundError, \
-    UnauthorizedError
+from mvmusic.libs.exceptions import AccessDeniedError, BadRequestError, \
+    NotFoundError, UnauthorizedError
 from mvmusic.models.library import Library
 from mvmusic.models.user import User
 from ..libs.responses import make_response
@@ -18,8 +18,13 @@ class BaseView(View):
 
     @property
     def user_libraries(self):
-        return Library.query.all() if self.current_user.is_admin \
+        libraries = Library.query.all() if self.current_user.is_admin \
             else self.current_user.libraries
+
+        if not libraries:
+            raise AccessDeniedError('User does not have any libraries')
+
+        return libraries
 
     def dispatch_request(self):
         kwargs = self.get_kwargs()
