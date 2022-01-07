@@ -2,7 +2,7 @@ from mvmusic.libs import omit_nulls
 from mvmusic.models.album import Album
 
 
-def album_serializer(album: Album, songs_count, duration, created, year, genre,
+def album_serializer(album: Album, songs_count, duration, created, year, genres,
                      media_image_id):
     resp = {
         'id': album.id_,
@@ -14,7 +14,7 @@ def album_serializer(album: Album, songs_count, duration, created, year, genre,
         'duration': duration,
         'created': created,
         'year': year,
-        'genre': genre
+        'genre': genres
     }
 
     return omit_nulls(resp, {'name', 'songCount', 'duration', 'created'})

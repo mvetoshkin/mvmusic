@@ -1,5 +1,4 @@
 from sqlalchemy import func
-from sqlalchemy.orm import noload
 
 from mvmusic.models.album import Album
 from mvmusic.models.artist import Artist
@@ -13,34 +12,45 @@ from ..serializers.artist import artist_serializer
 class GetArtistView(BaseView):
     def process_request(self, id_):
         artist = Artist.query.get(id_)
+        albums = Album.query.filter_by(artist=artist)
+        albums_data = self.get_albums_data(artist)
 
-        year_field = func.min(Media.year)
+        albums = [album_serializer(i, **albums_data[i.id_])
+                  for i in albums.all()]
 
+        media_image_id = list(albums_data.values())[0]['media_image_id']
+        resp = artist_serializer(artist, len(albums), media_image_id)
+        resp['album'] = sorted(albums, key=lambda i: (i['year'], i['name']))
+
+        return {
+            'artist': resp
+        }
+
+    # noinspection PyMethodMayBeStatic
+    def get_albums_data(self, artist):
         query = Album.query.with_entities(
-            Album,
+            Album.id_,
             func.count(Media.id_.distinct()),
             func.sum(Media.duration),
             func.min(Media.created_date),
-            year_field,
+            func.min(Media.year),
             func.string_agg(Genre.name.distinct(), ', '),
             func.min(Media.image_id)
         )
 
-        query = query.options(noload(Album.artist))
         query = query.join(Album.media)
         query = query.join(Media.genres)
         query = query.filter(Album.artist == artist)
-        query = query.group_by(Album)
-        query = query.order_by(year_field.asc(), Album.name)
-
-        albums = [
-            album_serializer(album, sc, dur, cr, year, genres, media_image_id)
-            for album, sc, dur, cr, year, genres, media_image_id in query.all()
-        ]
-
-        resp = artist_serializer(artist, len(albums))
-        resp['album'] = albums
+        query = query.group_by(Album.id_)
 
         return {
-            'artist': resp
+            id_: {
+                'songs_count': sc,
+                'duration': dur,
+                'created': cr,
+                'year': year,
+                'genres': genres,
+                'media_image_id': image_id
+            }
+            for id_, sc, dur, cr, year, genres, image_id in query.all()
         }
