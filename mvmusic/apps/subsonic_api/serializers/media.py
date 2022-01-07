@@ -1,8 +1,9 @@
+from mvmusic.libs import omit_nulls
 from mvmusic.models.media import Media
 
 
 def media_serializer(media: Media):
-    return {
+    resp = {
         'id': media.id_,
         'parent': media.parent_id,
         'isDir': False,
@@ -23,3 +24,5 @@ def media_serializer(media: Media):
         'albumId': media.album_id,
         'artistId': media.artist_id
     }
+
+    return omit_nulls(resp, {'isDir', 'title'})

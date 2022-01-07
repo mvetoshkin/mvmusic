@@ -17,3 +17,17 @@ def to_camel_case(text):
 
     chunks = text.split()
     return chunks[0] + ''.join(i.capitalize() for i in chunks[1:])
+
+
+def omit_nulls(obj, required=None):
+    required = required or {}
+    required |= {'id', 'value'}
+
+    new_obj = {}
+
+    for key, value in obj.items():
+        if not value and key not in required:
+            continue
+        new_obj[key] = value
+
+    return new_obj

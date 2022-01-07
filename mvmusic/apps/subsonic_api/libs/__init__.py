@@ -27,17 +27,17 @@ def get_subsonic_error_code(status):
 
 
 def dict2xml(element, dictionary):
-    for name, value in dictionary.items():
-        if name == 'value':
+    for key, value in dictionary.items():
+        if key == 'value':
             element.text = value_tostring(value)
 
         elif isinstance(value, dict):
-            sub_element = ElementTree.SubElement(element, name)
+            sub_element = ElementTree.SubElement(element, key)
             dict2xml(sub_element, value)
 
         elif isinstance(value, list):
             for v in value:
-                sub_element = ElementTree.SubElement(element, name)
+                sub_element = ElementTree.SubElement(element, key)
 
                 if isinstance(v, dict):
                     dict2xml(sub_element, v)
@@ -45,7 +45,7 @@ def dict2xml(element, dictionary):
                     sub_element.text = value_tostring(v)
 
         else:
-            element.set(name, value_tostring(value))
+            element.set(key, value_tostring(value))
 
 
 def value_tostring(value):
