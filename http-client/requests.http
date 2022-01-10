@@ -57,6 +57,13 @@ Content-Type: application/x-www-form-urlencoded
 {{ req_params }}&id=004cd7ef-0f02-4e80-bbe8-a4306f45c47d
 
 
+### Returns details for a song.
+POST {{ domain }}/rest/getSong.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}&id=04dda38d-d820-43c1-ac06-97620b466f30
+
+
 ### Get details about a given user, including which authorization roles and
 ### folder access it has. Can be used to enable/disable certain features in
 ### the client, such as jukebox control.
