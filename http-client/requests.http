@@ -49,6 +49,14 @@ Content-Type: application/x-www-form-urlencoded
 {{ req_params }}&id=a251bbf5-d469-48d3-b703-5dbe6f7d82b1
 
 
+### Returns details for an album, including a list of songs. This method
+### organizes music according to ID3 tags.
+POST {{ domain }}/rest/getAlbum.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}&id=004cd7ef-0f02-4e80-bbe8-a4306f45c47d
+
+
 ### Get details about a given user, including which authorization roles and
 ### folder access it has. Can be used to enable/disable certain features in
 ### the client, such as jukebox control.

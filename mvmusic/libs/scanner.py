@@ -183,11 +183,14 @@ class Scanner:
         artist_name = self.mp3_tag(file, 'TPE2') or \
             self.mp3_tag(file, 'TPE1')
 
+        disc, track = self.get_disc_and_track(self.mp3_tag(file, 'TRCK'))
+
         self.parse_tags(
             media,
             title=self.mp3_tag(file, 'TIT2'),
             release_date=self.mp3_tag(file, 'TDOR'),
-            track=self.mp3_tag(file, 'TRCK'),
+            track=track,
+            disc_number=disc,
             artist_name=artist_name,
             album_name=self.mp3_tag(file, 'TALB'),
             mb_artist_id=self.mp3_tag(file, 'TXXX:MusicBrainz Artist Id'),
@@ -208,6 +211,7 @@ class Scanner:
             title=self.flac_tag(file, 'TITLE'),
             release_date=self.flac_tag(file, 'ORIGINALDATE'),
             track=self.flac_tag(file, 'TRACKNUMBER'),
+            disc_number=self.flac_tag(file, 'DISCNUMBER'),
             artist_name=artist_name,
             album_name=self.flac_tag(file, 'ALBUM'),
             mb_artist_id=self.flac_tag(file, 'MUSICBRAINZ_ARTISTID'),
@@ -248,19 +252,32 @@ class Scanner:
 
         return tag[0].strip()
 
-    def parse_tags(self, media, title, release_date, track, artist_name,
-                   album_name, mb_artist_id, mb_album_id, image, genres):
+    def parse_tags(self, media, title, release_date, track, disc_number,
+                   artist_name, album_name, mb_artist_id, mb_album_id, image,
+                   genres):
         genres = genres or []
 
         media.title = title
         media.year = release_date
-        media.track = self.get_track(track)
-
-        media.artist = self.get_artist(artist_name, mb_artist_id)
-        media.album = self.get_album(media.artist, album_name, mb_album_id)
+        media.track = track
+        media.disc_number = disc_number
 
         if not self.is_image_same(media, image):
             media.image = self.save_image(image)
+
+        media.artist = self.get_artist(artist_name)
+        if mb_artist_id and media.artist.music_brainz_id != mb_artist_id:
+            media.artist.music_brainz_id = mb_artist_id
+        if media.image and not media.artist.image:
+            media.artist.image = media.image
+
+        media.album = self.get_album(media.artist, album_name, media.year)
+        if mb_album_id and media.album.music_brainz_id != mb_album_id:
+            media.album.music_brainz_id = mb_album_id
+        if media.year and not media.album.year:
+            media.album.year = media.year
+        if media.image and not media.album.image:
+            media.album.image = media.image
 
         new_genres = set()
         for genre_name in genres:
@@ -274,13 +291,17 @@ class Scanner:
                 media.genres.remove(genre)
 
     @staticmethod
-    def get_track(track):
+    def get_disc_and_track(track):
         if not track:
-            return None
-        return track.split('/')[0] if type(track) is str else track
+            return None, None
+
+        if '/' not in track:
+            return None, track
+
+        return track.split('/') if type(track) is str else (1, track)
 
     @staticmethod
-    def get_artist(name, music_brainz_id):
+    def get_artist(name):
         if not name:
             name = '[unknown]'
 
@@ -289,23 +310,17 @@ class Scanner:
         except NotFoundError:
             artist = Artist.create(name=name)
 
-        if music_brainz_id and artist.music_brainz_id != music_brainz_id:
-            artist.music_brainz_id = music_brainz_id
-
         return artist
 
     @staticmethod
-    def get_album(artist, name, music_brainz_id):
+    def get_album(artist, name, year):
         if not name:
             name = '[non-album tracks]'
 
         try:
-            album = Album.query.get_by(artist=artist, name=name)
+            album = Album.query.get_by(artist=artist, name=name, year=year)
         except NotFoundError:
-            album = Album.create(name=name, artist=artist)
-
-        if music_brainz_id and album.music_brainz_id != music_brainz_id:
-            album.music_brainz_id = music_brainz_id
+            album = Album.create(name=name, year=year, artist=artist)
 
         return album
 

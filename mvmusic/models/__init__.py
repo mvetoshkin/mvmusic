@@ -133,5 +133,6 @@ class ImageModel:
     def image(self):
         return relationship(
             'Image',
+            lazy='joined',
             uselist=False
         )

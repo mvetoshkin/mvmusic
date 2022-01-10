@@ -15,18 +15,18 @@ from ..serializers.artist import artist_serializer
 
 class GetArtistsView(BaseView):
     def process_request(self, musicfolderid=None):
-        libraries = self.user_libraries
+        library_ids = [i.id_ for i in self.user_libraries]
 
         if musicfolderid:
-            libraries = [i for i in libraries if i.id_ == musicfolderid]
-            if not libraries:
+            if musicfolderid not in library_ids:
                 raise AccessDeniedError
+            library_ids = [musicfolderid]
 
         resp = {
             'ignoredArticles': settings.SUBSONIC_API_IGNORE_ARTICLES
         }
 
-        indexes = self.get_indexes(libraries)
+        indexes = self.get_indexes(library_ids)
 
         if indexes:
             resp['index'] = indexes
@@ -35,13 +35,13 @@ class GetArtistsView(BaseView):
             'artists': resp
         }
 
-    def get_indexes(self, libraries):
-        albums_data = self.get_albums_data(libraries)
+    def get_indexes(self, library_ids):
+        albums_data = self.get_albums_data(library_ids)
         indexes_raw = defaultdict(list)
         ignored = ignored_articles()
-        query = Artist.query.join(Artist.media).filter(
-            Media.library_id.in_([i.id_ for i in libraries])
-        )
+
+        query = Artist.query.join(Artist.media)
+        query = query.filter(Media.library_id.in_(library_ids))
 
         for item in query.all():
             name = ignored.sub('', item.name) if ignored else item.name
@@ -64,22 +64,16 @@ class GetArtistsView(BaseView):
 
         return indexes
 
-    # noinspection PyMethodMayBeStatic
-    def get_albums_data(self, libraries):
+    @staticmethod
+    def get_albums_data(library_ids):
         query = Artist.query.with_entities(
             Artist.id_,
-            func.count(Album.id_.distinct()),
-            func.min(Media.image_id)
+            func.count(Album.id_.distinct()).label('albums_count'),
         )
         query = query.join(Artist.albums)
         query = query.join(Artist.media)
-        query = query.filter(Media.library_id.in_([i.id_ for i in libraries]))
+        query = query.filter(Media.library_id.in_(library_ids))
         query = query.group_by(Artist)
 
-        return {
-            id_: {
-                'albums_count': sc,
-                'media_image_id': image_id
-            }
-            for id_, sc, image_id in query.all()
-        }
+        return {i.id_: {k: i[k] for k in i.keys() if k != 'id_'}
+                for i in query.all()}

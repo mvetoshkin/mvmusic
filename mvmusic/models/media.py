@@ -8,6 +8,7 @@ class Media(BaseModel, PathModel, ImageModel):
     title: Column = Column(String)
     year = Column(Integer)
     track = Column(Integer)
+    disc_number = Column(Integer)
     duration = Column(Integer)
     bitrate = Column(Integer)
     size = Column(Integer)

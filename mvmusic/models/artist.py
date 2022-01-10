@@ -9,5 +9,11 @@ class Artist(BaseModel, ImageModel):
     notes: Column = Column(String)
     music_brainz_id = Column(String)
 
-    albums = relationship('Album', lazy='dynamic', viewonly=True)
+    albums = relationship(
+        'Album',
+        lazy='dynamic',
+        viewonly=True,
+        order_by='Album.year.asc(), Album.name.asc()'
+    )
+
     media = relationship('Media', lazy='dynamic', viewonly=True)
