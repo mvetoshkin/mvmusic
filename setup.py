@@ -25,6 +25,7 @@ setup(
         'flask == 2.0.2',
         'flask-cors == 3.0.10',
         'mutagen == 1.45.1',
+        'pillow == 9.0.0',
         'psycopg2 == 2.9.2',
         'python-dateutil == 2.8.2',
         'python-dotenv == 0.19.2',

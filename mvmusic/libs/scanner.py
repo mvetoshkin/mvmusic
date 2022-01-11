@@ -1,9 +1,11 @@
 import logging
 import os
+import shutil
 from datetime import datetime
 from uuid import uuid4
 
 from dateutil import parser
+from PIL import Image as PILImage
 from sqlalchemy.orm import noload
 
 import mutagen
@@ -146,10 +148,11 @@ class Scanner:
 
         for image in query.all():
             image_path = os.path.join(settings.CACHE_PATH, image.path)
-            if os.path.exists(image_path):
-                os.remove(image_path)
+            image_dir = os.path.dirname(image_path)
+            if os.path.exists(image_dir):
+                shutil.rmtree(image_dir)
             image.delete()
-            logger.info(f'Delete image {image_path}')
+            logger.info(f'Delete image {image_dir}')
 
     def scan_media_data(self, full=False):
         query = Media.query
@@ -339,15 +342,21 @@ class Scanner:
             return None
 
         id_ = str(uuid4())
-        image_cache_path = os.path.join('images', id_[:2], id_[2:4], id_)
-        image_path = os.path.join(settings.CACHE_PATH, image_cache_path)
+        img_cache_path = os.path.join('images', id_[:2], id_[2:4], id_, 'orig')
+        img_path = os.path.join(settings.CACHE_PATH, img_cache_path)
 
-        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        os.makedirs(os.path.dirname(img_path), exist_ok=True)
 
-        with open(image_path, 'wb') as file:
+        with open(img_path, 'wb') as file:
             file.write(image)
 
-        return Image(id_=id_, path=image_cache_path)
+        with PILImage.open(img_path) as img:
+            mimetype = PILImage.MIME[img.format]
+            height = img.height
+            width = img.width
+
+        return Image(id_=id_, path=img_cache_path, mimetype=mimetype,
+                     height=height, width=width)
 
     @staticmethod
     def is_image_same(obj, image):
