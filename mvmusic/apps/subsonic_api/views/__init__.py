@@ -2,7 +2,7 @@ import binascii
 import inspect
 from inspect import Signature
 
-from flask import request
+from flask import request, Response
 from flask.views import View
 
 from mvmusic.libs.exceptions import AccessDeniedError, BadRequestError, \
@@ -30,6 +30,10 @@ class BaseView(View):
         kwargs = self.get_kwargs()
         self.get_current_user()
         data = self.process_request(**kwargs)
+
+        if isinstance(data, Response):
+            return data
+
         return make_response(data, 200)
 
     def get_current_user(self):
