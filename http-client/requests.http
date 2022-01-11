@@ -64,6 +64,13 @@ Content-Type: application/x-www-form-urlencoded
 {{ req_params }}&id=04dda38d-d820-43c1-ac06-97620b466f30
 
 
+### Returns a cover art image.
+POST {{ domain }}/rest/getCoverArt.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}&id=16bea9f5-735c-425c-b976-65fe65c7ad85
+
+
 ### Get details about a given user, including which authorization roles and
 ### folder access it has. Can be used to enable/disable certain features in
 ### the client, such as jukebox control.
