@@ -73,7 +73,7 @@ class GetArtistsView(BaseView):
         query = query.join(Artist.albums)
         query = query.join(Artist.media)
         query = query.filter(Media.library_id.in_(library_ids))
-        query = query.group_by(Artist)
+        query = query.group_by(Artist.id_)
 
         return {i.id_: {k: i[k] for k in i.keys() if k != 'id_'}
                 for i in query.all()}
