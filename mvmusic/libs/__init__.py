@@ -20,7 +20,7 @@ def to_camel_case(text):
 
 
 def omit_nulls(obj, required=None):
-    required = required or {}
+    required = required or set()
     required |= {'id', 'value'}
 
     new_obj = {}
