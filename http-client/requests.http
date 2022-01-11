@@ -64,6 +64,13 @@ Content-Type: application/x-www-form-urlencoded
 {{ req_params }}&id=04dda38d-d820-43c1-ac06-97620b466f30
 
 
+### Returns random songs matching the given criteria.
+POST {{ domain }}/rest/getRandomSongs.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}&genre=Soul
+
+
 ### Returns a cover art image.
 POST {{ domain }}/rest/getCoverArt.view
 Content-Type: application/x-www-form-urlencoded
@@ -78,3 +85,8 @@ POST {{ domain }}/rest/getUser.view
 Content-Type: application/x-www-form-urlencoded
 
 {{ req_params }}&username={{ user }}
+
+
+###
+
+GET http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&api_key=c37f84152757a79c336a3dc49c0e6e3f&mbid=66c662b6-6e2f-4930-8610-912e24c63ed1&format=json
