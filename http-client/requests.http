@@ -71,6 +71,13 @@ Content-Type: application/x-www-form-urlencoded
 {{ req_params }}&genre=Soul
 
 
+### Returns songs in a given genre.
+POST {{ domain }}/rest/getSongsByGenre.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}&genre=Hard Rock&count=5&offset=0
+
+
 ### Returns a cover art image.
 POST {{ domain }}/rest/getCoverArt.view
 Content-Type: application/x-www-form-urlencoded
