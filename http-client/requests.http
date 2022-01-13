@@ -78,6 +78,14 @@ Content-Type: application/x-www-form-urlencoded
 {{ req_params }}&genre=Hard Rock&count=5&offset=0
 
 
+### Downloads a given media file. Similar to stream, but this method returns
+### the original media data without transcoding or downsampling.
+POST {{ domain }}/rest/download.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}&id=09c94a9d-5ad3-4a62-90d3-4e62434b0f4d
+
+
 ### Returns a cover art image.
 POST {{ domain }}/rest/getCoverArt.view
 Content-Type: application/x-www-form-urlencoded
