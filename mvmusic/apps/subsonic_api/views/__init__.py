@@ -52,6 +52,8 @@ class BaseView(View):
             raise UnauthorizedError('Wrong username or password')
 
     def get_kwargs(self):
+        builtin_names = ('id', 'format',)
+
         common_required = {'u', 'p', 'v', 'c'}
         common_optional = {'f'}
         required = set() | common_required
@@ -69,8 +71,8 @@ class BaseView(View):
         req_attrs = set()
         for attr in request.values.keys():
             attr = attr.lower()
-            if attr == 'id':
-                attr = 'id_'
+            if attr in builtin_names:
+                attr += '_'
             req_attrs.add(attr)
 
         missing = required - req_attrs
@@ -93,8 +95,8 @@ class BaseView(View):
             if attr in common_required or attr in common_optional:
                 continue
 
-            if attr == 'id':
-                attr = 'id_'
+            if attr in builtin_names:
+                attr += '_'
 
             attrs[attr] = v
 
