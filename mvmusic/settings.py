@@ -23,6 +23,7 @@ class DefaultSettings:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SUBSONIC_API_IGNORE_ARTICLES = 'The El La Los Las Le Les'
+    TRANSCODE_CMD = '/usr/bin/ffmpeg -i "{file}" -ab {bitrate}k -v 0 -f {fmt} -'
 
     # noinspection PyPep8Naming
     @property
@@ -44,6 +45,8 @@ class DevelopmentSettings(DefaultSettings):
         os.path.dirname(mvmusic.__file__).rpartition(os.path.sep)[0], '.cache'
     )
     ENV = 'development'
+    TRANSCODE_CMD = '/usr/local/bin/ffmpeg -i "{file}" -ab {bitrate}k -v 0 ' \
+                    '-f {fmt} -'
 
 
 class ProductionSettings(DefaultSettings):

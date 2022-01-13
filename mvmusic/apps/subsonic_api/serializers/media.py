@@ -21,7 +21,7 @@ def media_serializer(media: Media, type_='music'):
         'coverArt': media.image_id,
         'size': media.size,
         'contentType': media.content_type,
-        'suffix': media.path.split('/')[-1].rpartition('.')[-1],
+        'suffix': media.suffix,
         'duration': media.duration,
         'bitRate': media.bitrate,
         'path': media.path,

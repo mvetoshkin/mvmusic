@@ -28,3 +28,7 @@ class Media(BaseModel, PathModel, ImageModel):
     album = relationship('Album', uselist=False, lazy='joined')
     artist = relationship('Artist', uselist=False, lazy='joined')
     genres = relationship('Genre', secondary='media_genre', lazy='joined')
+
+    @property
+    def suffix(self):
+        return self.path.split('/')[-1].rpartition('.')[-1]
