@@ -15,17 +15,6 @@ def ignored_articles():
     return re.compile(reg_exp, re.IGNORECASE)
 
 
-def get_subsonic_error_code(status):
-    statuses = {
-        400: 10,
-        401: 40,
-        403: 50,
-        404: 70,
-    }
-
-    return statuses.get(status, 0)
-
-
 def dict2xml(element, dictionary):
     for key, value in dictionary.items():
         if key == 'value':

@@ -1,6 +1,6 @@
 from mvmusic.models.media import Media
 from . import BaseView
-from ..serializers.media import media_serializer
+from ..serializers.child import child_serializer
 
 
 class GetSongView(BaseView):
@@ -8,5 +8,5 @@ class GetSongView(BaseView):
         media = Media.query.get(id_)
 
         return {
-            'song': media_serializer(media)
+            'song': child_serializer(media)
         }

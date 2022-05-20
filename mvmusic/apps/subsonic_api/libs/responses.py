@@ -6,14 +6,16 @@ from flask import g
 from mvmusic.libs.types import JSONEncoder
 from ..libs import dict2xml
 from ..libs.types import ResponseFormat
+from ..serializers.response_status import reponse_status_serializer
+from ..serializers.version import version_serializer
 
 
 def make_response(data, status, headers=None):
     headers = headers or {}
 
     resp = {
-        'status': 'ok' if 200 <= status < 400 else 'failed',
-        'version': '1.12.0'
+        'status': reponse_status_serializer(status),
+        'version': version_serializer()
     }
 
     resp.update(data or {})

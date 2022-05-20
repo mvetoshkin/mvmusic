@@ -1,9 +1,9 @@
 from mvmusic.libs import omit_nulls
-from mvmusic.models.user import User
 
 
-def user_serializer(user: User):
+def user_serializer(user):
     resp = {
+        'folder': [i.id_ for i in user.libraries],
         'username': user.username,
         'scrobblingEnabled': False,
         'adminRole': user.is_admin,
@@ -17,7 +17,7 @@ def user_serializer(user: User):
         'streamRole': True,
         'jukeboxRole': False,
         'shareRole': False,
-        'folder': [i.id_ for i in user.libraries]
+        'videoConversionRole': False
     }
 
     return omit_nulls(resp, {
@@ -32,5 +32,6 @@ def user_serializer(user: User):
         'podcastRole',
         'streamRole',
         'jukeboxRole',
-        'shareRole'
+        'shareRole',
+        'videoConversionRole'
     })

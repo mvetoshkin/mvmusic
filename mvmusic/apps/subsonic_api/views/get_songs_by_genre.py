@@ -4,7 +4,7 @@ from mvmusic.models.genre import Genre
 from mvmusic.models.media import Media
 from mvmusic.models.media_genre import MediaGenre
 from . import BaseView
-from ..serializers.media import media_serializer
+from ..serializers.songs import songs_serializer
 
 
 class GetSongsByGenreView(BaseView):
@@ -35,7 +35,8 @@ class GetSongsByGenreView(BaseView):
 
         query = query.limit(count)
         query = query.offset(count * offset)
+        songs = query.all()
 
         return {
-            'songsByGenre': [media_serializer(i) for i in query.all()]
+            'songsByGenre': songs_serializer(songs)
         }

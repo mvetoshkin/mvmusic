@@ -5,8 +5,8 @@ from mvmusic.models.artist import Artist
 from mvmusic.models.genre import Genre
 from mvmusic.models.media import Media
 from . import BaseView
-from ..serializers.album import album_serializer
-from ..serializers.artist import artist_serializer
+from ..serializers.artist_with_albums_id3 import \
+    artist_with_albums_id3_serializer
 
 
 class GetArtistView(BaseView):
@@ -14,14 +14,14 @@ class GetArtistView(BaseView):
         artist = Artist.query.get(id_)
         albums_data = self.get_albums_data(artist)
 
-        albums = [album_serializer(i, **albums_data[i.id_])
-                  for i in artist.albums.all()]
-
-        resp = artist_serializer(artist, len(albums))
-        resp['album'] = albums
+        albums = []
+        for album in artist.albums.all():
+            album_data = albums_data[album.id_]
+            album_data['album'] = album
+            albums.append(album_data)
 
         return {
-            'artist': resp
+            'artist': artist_with_albums_id3_serializer(artist, albums)
         }
 
     @staticmethod

@@ -1,8 +1,7 @@
 from mvmusic.libs import omit_nulls
-from mvmusic.models.genre import Genre
 
 
-def genre_serializer(genre: Genre, songs_count, albums_count):
+def genre_serializer(genre, songs_count, albums_count):
     resp = {
         'value': genre.name,
         'songCount': songs_count,

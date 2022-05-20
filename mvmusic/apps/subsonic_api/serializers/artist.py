@@ -1,13 +1,10 @@
 from mvmusic.libs import omit_nulls
-from mvmusic.models.artist import Artist
 
 
-def artist_serializer(artist: Artist, albums_count):
+def artist_serializer(artist):
     resp = {
         'id': artist.id_,
-        'name': artist.name,
-        'coverArt': artist.image_id,
-        'albumCount': albums_count,
+        'name': artist.name
     }
 
-    return omit_nulls(resp, {'name', 'albumCount'})
+    return omit_nulls(resp, {'name'})

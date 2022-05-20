@@ -6,11 +6,9 @@ from operator import attrgetter
 from mvmusic.libs.exceptions import AccessDeniedError
 from mvmusic.models.directory import Directory
 from mvmusic.models.media import Media
-from mvmusic.settings import settings
 from . import BaseView
 from ..libs import ignored_articles
-from ..serializers.directory import directory_serializer
-from ..serializers.media import media_serializer
+from ..serializers.indexes import indexes_serializer
 
 
 class GetIndexesView(BaseView):
@@ -27,19 +25,8 @@ class GetIndexesView(BaseView):
         children, children_lm = self.get_children(libraries, last_modified)
         last_modified = max(indexes_lm, children_lm)
 
-        resp = {
-            'lastModified': int(last_modified.timestamp() * 1000),
-            'ignoredArticles': settings.SUBSONIC_API_IGNORE_ARTICLES
-        }
-
-        if indexes:
-            resp['index'] = indexes
-
-        if children:
-            resp['child'] = children
-
         return {
-            'indexes': resp
+            'indexes': indexes_serializer(indexes, children, last_modified)
         }
 
     @staticmethod
@@ -71,10 +58,9 @@ class GetIndexesView(BaseView):
         for item in sorted(indexes_raw):
             indexes.append({
                 'name': item,
-                'artist': [
-                    directory_serializer(i)
-                    for i in sorted(indexes_raw[item], key=attrgetter('name'))
-                ]
+                'artists': [i for i in sorted(
+                    indexes_raw[item], key=attrgetter('name')
+                )]
             })
 
         return indexes, last_modified
@@ -93,7 +79,7 @@ class GetIndexesView(BaseView):
         query = Media.query.filter(*filters).order_by(Media.title)
 
         for item in query.all():
-            children.append(media_serializer(item))
+            children.append(item)
             if not last_modified or item.last_seen > last_modified:
                 last_modified = item.last_seen
 

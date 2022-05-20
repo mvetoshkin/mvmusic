@@ -1,12 +1,9 @@
 from . import BaseView
-from ..serializers.library import library_serializer
+from ..serializers.music_folders import music_folders_serializer
 
 
 class GetMusicFoldersView(BaseView):
     def process_request(self):
         return {
-            'musicFolders': {
-                'musicFolder': [library_serializer(i)
-                                for i in self.user_libraries]
-            }
+            'musicFolders': music_folders_serializer(self.user_libraries)
         }

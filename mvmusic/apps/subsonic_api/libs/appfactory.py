@@ -9,13 +9,13 @@ from werkzeug.exceptions import HTTPException
 from mvmusic.libs import import_object
 from mvmusic.libs.database import db
 from mvmusic.libs.exceptions import AccessDeniedError, AppException, \
-    AppValueError, BadRequestError, NoExtensionException, NotFoundError, \
-    UnauthorizedError
+    AppValueError, BadRequestError, NoBlueprintException, \
+    NoExtensionException, NotFoundError, UnauthorizedError
 from mvmusic.libs.exceptions import ModelKeyError
 from mvmusic.settings import settings
-from ..libs import get_subsonic_error_code
 from ..libs.responses import make_response
 from ..libs.types import ResponseFormat
+from ..serializers.error import error_serializer
 
 
 class AppFactory:
@@ -63,7 +63,7 @@ class AppFactory:
                 self.app.register_blueprint(obj)
 
             except ImportError:
-                raise NoExtensionException(
+                raise NoBlueprintException(
                     f'No {blueprint_path} blueprint found'
                 )
 
@@ -112,10 +112,7 @@ def create_app():
             app.logger.error(errors_text, exc_info=True)
 
         data = {
-            'error': {
-                'code': get_subsonic_error_code(status),
-                'message': errors_text
-            }
+            'error': error_serializer(status, errors_text)
         }
 
         return make_response(data, status)

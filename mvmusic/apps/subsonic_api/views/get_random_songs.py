@@ -6,7 +6,7 @@ from mvmusic.models.genre import Genre
 from mvmusic.models.media import Media
 from mvmusic.models.media_genre import MediaGenre
 from . import BaseView
-from ..serializers.media import media_serializer
+from ..serializers.songs import songs_serializer
 
 
 class GetRandomSongsView(BaseView):
@@ -41,7 +41,8 @@ class GetRandomSongsView(BaseView):
             query = query.filter(Media.year <= int(toyear))
 
         query = query.limit(size)
+        songs = query.all()
 
         return {
-            'randomSongs': [media_serializer(i) for i in query.all()]
+            'randomSongs': songs_serializer(songs)
         }

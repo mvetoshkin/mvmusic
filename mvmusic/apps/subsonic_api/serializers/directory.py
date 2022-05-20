@@ -1,20 +1,14 @@
 from mvmusic.libs import omit_nulls
 from mvmusic.models.directory import Directory
+from .child import child_serializer
 
 
-def directory_serializer(directory: Directory, as_child=False):
+def directory_serializer(directory: Directory, children):
     resp = {
         'id': directory.id_,
-        'parent': directory.parent_id
+        'parent': directory.parent_id,
+        'name': directory.name,
+        'child': [child_serializer(i) for i in children]
     }
 
-    if as_child:
-        resp['title'] = directory.name
-        resp['isDir'] = True
-        resp['coverArt'] = directory.image_id
-        resp['artist'] = directory.parent.name
-
-    else:
-        resp['name'] = directory.name
-
-    return omit_nulls(resp, {'isDir', 'title'})
+    return omit_nulls(resp, {'name'})

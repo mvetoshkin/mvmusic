@@ -3,24 +3,27 @@ from sqlalchemy import func
 from mvmusic.models.genre import Genre
 from mvmusic.models.media import Media
 from . import BaseView
-from ..serializers.genre import genre_serializer
+from ..serializers.genres import genres_serializer
 
 
 class GetGenresView(BaseView):
     def process_request(self):
         library_ids = [i.id_ for i in self.user_libraries]
 
-        genres_data = self.get_genres_data(library_ids)
-
         query = Genre.query.filter(Media.library_id.in_(library_ids))
         query = query.join(Genre.media)
         query = query.order_by(Genre.name)
 
+        genres = []
+        genres_data = self.get_genres_data(library_ids)
+
+        for genre in query.all():
+            data = genres_data[genre.id_]
+            data['genre'] = genre
+            genres.append(data)
+
         return {
-            'genres': {
-                'genre': [genre_serializer(i, **genres_data[i.id_])
-                          for i in query.all()]
-            }
+            'genres': genres_serializer(genres)
         }
 
     @staticmethod

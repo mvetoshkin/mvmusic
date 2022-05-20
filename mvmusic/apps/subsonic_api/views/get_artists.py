@@ -7,10 +7,9 @@ from mvmusic.libs.exceptions import AccessDeniedError
 from mvmusic.models.album import Album
 from mvmusic.models.artist import Artist
 from mvmusic.models.media import Media
-from mvmusic.settings import settings
 from . import BaseView
 from ..libs import ignored_articles
-from ..serializers.artist import artist_serializer
+from ..serializers.artists_id3 import artists_id3_serializer
 
 
 class GetArtistsView(BaseView):
@@ -22,17 +21,10 @@ class GetArtistsView(BaseView):
                 raise AccessDeniedError
             library_ids = [musicfolderid]
 
-        resp = {
-            'ignoredArticles': settings.SUBSONIC_API_IGNORE_ARTICLES
-        }
-
         indexes = self.get_indexes(library_ids)
 
-        if indexes:
-            resp['index'] = indexes
-
         return {
-            'artists': resp
+            'artists': artists_id3_serializer(indexes)
         }
 
     def get_indexes(self, library_ids):
@@ -54,12 +46,16 @@ class GetArtistsView(BaseView):
 
         indexes = []
         for item in sorted(indexes_raw.keys()):
+            artists = []
+
+            for artist in indexes_raw[item]:
+                artist_data = albums_data[artist.id_]
+                artist_data['artist'] = artist
+                artists.append(artist_data)
+
             indexes.append({
                 'name': item,
-                'artist': [
-                    artist_serializer(i, **albums_data[i.id_])
-                    for i in indexes_raw[item]
-                ]
+                'artists': artists
             })
 
         return indexes

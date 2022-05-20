@@ -1,31 +1,22 @@
 from mvmusic.models.album import Album
 from . import BaseView
-from ..serializers.album import album_serializer
-from ..serializers.media import media_serializer
+from ..serializers.album_with_songs_id3 import album_with_songs_id3_serializer
 
 
 class GetAlbumView(BaseView):
     def process_request(self, id_):
         album = Album.query.get(id_)
+        songs = album.media.all()
 
-        songs = []
         genres = set()
         duration = 0
 
-        for item in album.media.all():
-            songs.append(media_serializer(item))
+        for item in songs:
             genres |= {i.name for i in item.genres}
             duration += item.duration or 0
 
-        resp = album_serializer(
-            album=album,
-            songs_count=len(songs),
-            duration=duration,
-            genres=', '.join(sorted(genres))
-        )
-
-        resp['song'] = songs
-
         return {
-            'album': resp
+            'album': album_with_songs_id3_serializer(
+                album, duration, ', '.join(sorted(genres)), songs
+            )
         }
