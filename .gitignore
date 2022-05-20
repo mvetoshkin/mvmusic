@@ -9,3 +9,4 @@
 *.pyc
 
 http-client.private.env.json
+test.http
