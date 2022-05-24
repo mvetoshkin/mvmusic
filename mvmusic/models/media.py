@@ -20,7 +20,7 @@ class Media(BaseModel, PathModel, ImageModel):
         ForeignKey('album.id', ondelete='cascade')
     )
 
-    artist_id = Column(
+    artist_id: Column = Column(
         String,
         ForeignKey('artist.id', ondelete='cascade')
     )

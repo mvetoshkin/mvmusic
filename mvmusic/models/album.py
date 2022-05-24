@@ -9,8 +9,9 @@ class Album(BaseModel, ImageModel):
     year = Column(Integer)
     notes: Column = Column(String)
     music_brainz_id = Column(String)
+    last_fm_url = Column(String)
 
-    artist_id = Column(
+    artist_id: Column = Column(
         String,
         ForeignKey('artist.id', ondelete='cascade'),
         nullable=False

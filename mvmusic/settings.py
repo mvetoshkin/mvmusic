@@ -27,6 +27,11 @@ class DefaultSettings:
 
     # noinspection PyPep8Naming
     @property
+    def DISCOGS_ACCESS_TOKEN(self):
+        return os.environ.get('DISCOGS_ACCESS_TOKEN')
+
+    # noinspection PyPep8Naming
+    @property
     def SECRET_KEY(self):
         return os.environ['MVMUSIC_SECRET_KEY']
 

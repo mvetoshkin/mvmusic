@@ -8,6 +8,7 @@ class Artist(BaseModel, ImageModel):
     name = Column(String, nullable=False, index=True)
     notes: Column = Column(String)
     music_brainz_id = Column(String)
+    last_fm_url = Column(String)
 
     albums = relationship(
         'Album',

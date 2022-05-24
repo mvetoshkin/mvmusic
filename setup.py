@@ -29,6 +29,7 @@ setup(
         'psycopg2 == 2.9.2',
         'python-dateutil == 2.8.2',
         'python-dotenv == 0.19.2',
+        'requests == 2.27.1',
         'shortuuid == 1.0.8',
         'sqlalchemy == 1.4.28',
     ],

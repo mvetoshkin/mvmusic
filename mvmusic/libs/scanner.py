@@ -1,9 +1,11 @@
 import logging
 import os
 import shutil
+import time
 from datetime import datetime
 from uuid import uuid4
 
+import requests
 from dateutil import parser
 from PIL import Image as PILImage
 from sqlalchemy.orm import noload
@@ -13,7 +15,9 @@ import mutagen.flac
 import mutagen.mp3
 
 from mvmusic.libs.database import db
+from mvmusic.libs.discogs import get_discogs_artist, search_discogs_artist
 from mvmusic.libs.exceptions import NotFoundError
+from mvmusic.libs.musicbrainz import get_mb_artist
 from mvmusic.models.album import Album
 from mvmusic.models.artist import Artist
 from mvmusic.models.directory import Directory
@@ -380,16 +384,40 @@ class Scanner:
             obj.parent.image = obj.image
             self.set_parent_image(obj.parent)
 
-    def scan_artists(self):
-        query = Artist.query.filter(Artist.notes.is_(None))
+    def scan_artists(self, full=False):
+        query = Artist.query
+
+        if not full:
+            query = query.filter(Artist.notes.is_(None))
 
         for item in query.all():
             self.scan_artist(item)
             db.session.commit()
+            time.sleep(1)
 
-    @staticmethod
-    def scan_artist(artist):
-        pass
+    def scan_artist(self, artist):
+        mb_artist = None
+        discogs_id = None
+
+        if artist.music_brainz_id:
+            mb_artist = get_mb_artist(artist)
+            discogs_id = mb_artist.get('discogs_id')
+
+        if discogs_id:
+            artist_info = get_discogs_artist(discogs_id)
+        else:
+            artist_info = search_discogs_artist(artist.name)
+
+        if mb_artist:
+            artist.last_fm_url = mb_artist.get('last_fm_url')
+
+        if artist_info:
+            artist.notes = artist_info['notes']
+
+            if artist_info['image_url']:
+                resp = requests.get(artist_info['image_url'])
+                if not self.is_image_same(artist, resp.content):
+                    artist.image = self.save_image(resp.content)
 
     def scan_albums(self):
         query = Album.query.filter(Album.notes.is_(None))
