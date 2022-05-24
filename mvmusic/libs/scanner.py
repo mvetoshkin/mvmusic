@@ -114,8 +114,11 @@ class Scanner:
             logger.info(f'Delete folder {item_path}')
 
         media_sq = Media.query.with_entities(Media.album_id).distinct()
+        media_sq = media_sq.filter(Media.album_id.isnot(None))
         album_sq = Album.query.with_entities(Album.artist_id).distinct()
+        album_sq = album_sq.filter(Album.artist_id.isnot(None))
         artist_sq = Artist.query.with_entities(Artist.image_id).distinct()
+        artist_sq = artist_sq.filter(Artist.image_id.isnot(None))
 
         # Delete unused albums
 
