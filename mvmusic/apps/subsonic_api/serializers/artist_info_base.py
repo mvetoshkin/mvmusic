@@ -13,5 +13,4 @@ def artist_info_base_serializer(artist):
         )
     }
 
-    return omit_nulls(resp, {'biography', 'musicBrainzId', 'lastFmUrl',
-                             'largeImageUrl'})
+    return omit_nulls(resp)
