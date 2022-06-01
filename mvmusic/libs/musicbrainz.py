@@ -1,3 +1,5 @@
+from urllib.parse import unquote_plus
+
 import requests
 
 from mvmusic.models.album import Album
@@ -38,8 +40,11 @@ def get_data(artist):
 
     for item in artist['relations']:
         if item['type'] == 'discogs':
-            data['discogs_id'] = item['url']['resource'].rpartition('/')[-1]
+            url = unquote_plus(item['url']['resource'])
+            data['discogs_id'] = url.rpartition('/')[-1]
         elif item['type'] == 'last.fm':
-            data['last_fm_url'] = item['url']['resource']
+            data['last_fm_url'] = unquote_plus(item['url']['resource'])
+        elif item['type'] == 'wikidata':
+            data['wikidata_url'] = unquote_plus(item['url']['resource'])
 
     return data

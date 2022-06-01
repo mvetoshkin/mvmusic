@@ -31,3 +31,16 @@ def omit_nulls(obj, required=None):
         new_obj[key] = value
 
     return new_obj
+
+
+def dict_value(dict_: dict, path: str, default=None):
+    chunks = path.split('.')
+
+    for idx, chunk in enumerate(chunks):
+        if not isinstance(dict_, dict):
+            raise KeyError
+
+        if idx == len(chunks) - 1:
+            return dict_.get(chunk, default)
+        else:
+            dict_ = dict_.get(chunk, {})

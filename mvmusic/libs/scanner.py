@@ -5,19 +5,20 @@ import time
 from datetime import datetime
 from uuid import uuid4
 
+import mutagen
+import mutagen.flac
+import mutagen.mp3
 import requests
 from dateutil import parser
 from PIL import Image as PILImage
 from sqlalchemy.orm import noload
 
-import mutagen
-import mutagen.flac
-import mutagen.mp3
-
 from mvmusic.libs.database import db
-from mvmusic.libs.discogs import get_discogs_artist, search_discogs_artist
+from mvmusic.libs.discogs import get_discogs_album, get_discogs_artist, \
+    search_discogs_album, search_discogs_artist
 from mvmusic.libs.exceptions import NotFoundError
-from mvmusic.libs.musicbrainz import get_mb_artist
+from mvmusic.libs.musicbrainz import get_mb_album, get_mb_artist
+from mvmusic.libs.wiki import parse_wiki, parse_wikidata
 from mvmusic.models.album import Album
 from mvmusic.models.artist import Artist
 from mvmusic.models.directory import Directory
@@ -59,8 +60,8 @@ class Scanner:
         db.session.commit()
 
         self.scan_media_data(full)
-        # self.scan_artists()
-        # self.scan_albums()
+        self.scan_artists(full)
+        self.scan_albums(full)
 
         self.purge()
 
@@ -396,36 +397,66 @@ class Scanner:
             time.sleep(1)
 
     def scan_artist(self, artist):
-        mb_artist = None
-        discogs_id = None
-
         if artist.music_brainz_id:
-            mb_artist = get_mb_artist(artist)
-            discogs_id = mb_artist.get('discogs_id')
+            artist_info = get_mb_artist(artist)
 
-        if discogs_id:
-            artist_info = get_discogs_artist(discogs_id)
+            if artist_info.get('discogs_id'):
+                discogs_info = get_discogs_artist(artist_info['discogs_id'])
+                artist_info.update({k: v for k, v in discogs_info.items()
+                                   if not artist_info.get(k)})
         else:
-            artist_info = search_discogs_artist(artist.name)
+            artist_info = search_discogs_artist(artist)
 
-        if mb_artist:
-            artist.last_fm_url = mb_artist.get('last_fm_url')
+        if not artist_info:
+            return
 
-        if artist_info:
-            artist.notes = artist_info['notes']
+        if artist_info.get('wikidata_url'):
+            artist_info.update(parse_wikidata(artist_info['wikidata_url']))
+        elif artist_info.get('wiki_url'):
+            artist_info.update(parse_wiki(artist_info['wiki_url']))
 
-            if artist_info['image_url']:
-                resp = requests.get(artist_info['image_url'])
-                if not self.is_image_same(artist, resp.content):
-                    artist.image = self.save_image(resp.content)
+        artist.last_fm_url = artist_info.get('last_fm_url')
+        artist.notes = artist_info.get('notes')
 
-    def scan_albums(self):
-        query = Album.query.filter(Album.notes.is_(None))
+        if artist_info.get('image_url'):
+            resp = requests.get(artist_info['image_url'])
+            if not self.is_image_same(artist, resp.content):
+                artist.image = self.save_image(resp.content)
+
+    def scan_albums(self, full):
+        query = Album.query
+
+        if not full:
+            query = query.filter(Album.notes.is_(None))
 
         for item in query.all():
             self.scan_album(item)
             db.session.commit()
+            time.sleep(1)
 
-    @staticmethod
-    def scan_album(album):
-        pass
+    def scan_album(self, album):
+        if album.music_brainz_id:
+            album_info = get_mb_album(album)
+
+            if album_info.get('discogs_id'):
+                discogs_info = get_discogs_album(album_info['discogs_id'])
+                album_info.update({k: v for k, v in discogs_info.items()
+                                   if not album_info.get(k)})
+        else:
+            album_info = search_discogs_album(album)
+
+        if not album_info:
+            return
+
+        if album_info.get('wikidata_url'):
+            album_info.update(parse_wikidata(album_info['wikidata_url']))
+        elif album_info.get('wiki_url'):
+            album_info.update(parse_wiki(album_info['wiki_url']))
+
+        album.last_fm_url = album_info.get('last_fm_url')
+        album.notes = album_info.get('notes')
+
+        if album_info.get('image_url'):
+            resp = requests.get(album_info['image_url'])
+            if not self.is_image_same(album, resp.content):
+                album.image = self.save_image(resp.content)
