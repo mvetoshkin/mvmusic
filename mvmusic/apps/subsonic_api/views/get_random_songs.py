@@ -40,9 +40,9 @@ class GetRandomSongsView(BaseView):
         if toyear:
             query = query.filter(Media.year <= int(toyear))
 
-        query = query.limit(size)
-        songs = query.all()
+        if size:
+            query = query.limit(size)
 
         return {
-            'randomSongs': songs_serializer(songs)
+            'randomSongs': songs_serializer(query)
         }

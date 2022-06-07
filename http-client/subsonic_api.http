@@ -93,6 +93,21 @@ Content-Type: application/x-www-form-urlencoded
 {{ req_params }}&id=004cd7ef-0f02-4e80-bbe8-a4306f45c47d
 
 
+### Returns a random collection of songs from the given artist and similar
+### artists, using data from last.fm. Typically used for artist radio features.
+POST {{ domain }}/rest/getSimilarSongs.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}&id=a251bbf5-d469-48d3-b703-5dbe6f7d82b1
+
+
+### Similar to getSimilarSongs, but organizes music according to ID3 tags.
+POST {{ domain }}/rest/getSimilarSongs2.view
+Content-Type: application/x-www-form-urlencoded
+
+{{ req_params }}&id=83ab7a06-4536-4a56-ad8a-3ede2938a7e4
+
+
 ### Returns random songs matching the given criteria.
 POST {{ domain }}/rest/getRandomSongs.view
 Content-Type: application/x-www-form-urlencoded
