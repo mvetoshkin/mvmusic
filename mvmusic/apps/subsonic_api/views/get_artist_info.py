@@ -26,7 +26,6 @@ class GetArtistInfoView(BaseView):
         artists_sq = artists_sq.join(Media.genres)
         artists_sq = artists_sq.filter(Genre.id_.in_(genres_sq))
         artists_sq = artists_sq.filter(Media.artist != artist)
-        artists_sq = artists_sq.filter(Media.artist_id.isnot(None))
 
         if count:
             artists_sq = artists_sq.limit(count)
