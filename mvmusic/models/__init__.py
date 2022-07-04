@@ -45,13 +45,13 @@ class BaseModel(declarative_base()):
         default=lambda: str(uuid4())
     )
 
-    created_date = Column(
+    created_date: Column = Column(
         DateTime,
         nullable=False,
         default=datetime.utcnow
     )
 
-    modified_date = Column(
+    modified_date: Column = Column(
         DateTime,
         nullable=False,
         default=datetime.utcnow,

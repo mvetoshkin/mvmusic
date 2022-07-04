@@ -6,7 +6,7 @@ from mvmusic.models import BaseModel, ImageModel, PathModel
 
 class Media(BaseModel, PathModel, ImageModel):
     title: Column = Column(String)
-    year = Column(Integer)
+    year: Column = Column(Integer)
     track = Column(Integer)
     disc_number = Column(Integer)
     duration = Column(Integer)
