@@ -58,11 +58,15 @@ class BaseView(View):
         common_optional = {'f'}
         required = set() | common_required
         optional = set() | common_optional
+        multiple = set()
 
         params = inspect.signature(self.process_request).parameters
         allowed = set(params)
 
         for param_name in params:
+            if param_name.endswith('_m'):
+                multiple.add(param_name[:-2])
+
             if params[param_name].default == Signature.empty:
                 required.add(param_name)
             else:
@@ -71,6 +75,8 @@ class BaseView(View):
         req_attrs = set()
         for attr in request.values.keys():
             attr = attr.lower()
+            if attr in multiple:
+                attr += '_m'
             if attr in builtin_names:
                 attr += '_'
             req_attrs.add(attr)
@@ -90,15 +96,23 @@ class BaseView(View):
             )
 
         attrs = {}
-        for k, v in request.values.items():
-            attr = k.lower()
+
+        for attr in request.values.keys():
+            value = request.values.get(attr) if attr.lower() not in multiple \
+                else request.values.getlist(attr)
+
+            attr = attr.lower()
+
             if attr in common_required or attr in common_optional:
                 continue
+
+            if attr in multiple:
+                attr += '_m'
 
             if attr in builtin_names:
                 attr += '_'
 
-            attrs[attr] = v
+            attrs[attr] = value
 
         return attrs
 

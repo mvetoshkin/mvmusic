@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from mvmusic.models import BaseModel, UserModel
 
 
-class History(BaseModel, UserModel):
+class StarredMedia(BaseModel, UserModel):
     media_id: Column = Column(
         String,
         ForeignKey('media.id', ondelete='cascade'),

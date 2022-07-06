@@ -135,3 +135,21 @@ class ImageModel:
             'Image',
             uselist=False
         )
+
+
+class UserModel:
+    @declared_attr
+    def user_id(self):
+        return Column(
+            String,
+            ForeignKey('user.id', ondelete='cascade'),
+            nullable=False,
+            index=True
+        )
+
+    @declared_attr
+    def user(self):
+        return relationship(
+            'User',
+            uselist=False
+        )
