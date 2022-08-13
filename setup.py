@@ -11,7 +11,7 @@ setup(
     author='Mikhail Vetoshkin',
     author_email='mikhail@vetoshkin.dev',
     description='Simple music library',
-    url='https://github.com/mvetoshkin/mvmusic',
+    url='https://git.vetoshkin.dev/mvmusic/',
     packages=find_packages(),
     entry_points={
         'console_scripts': [
