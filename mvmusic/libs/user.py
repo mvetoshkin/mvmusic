@@ -1,6 +1,9 @@
 import logging
 
-from mvmusic.libs.exceptions import NotFoundError
+from sqlalchemy.exc import NoResultFound
+from sqlalchemy import select
+
+from mvmusic.libs.database import session
 from mvmusic.models.library import Library
 from mvmusic.models.user import User
 
@@ -8,35 +11,34 @@ logger = logging.getLogger(__name__)
 
 
 def list_users():
-    for user in User.query.all():
-        admin = 'admin' if user.is_admin else ''
-        print(f'{user.id_:40} {user.username:20} {admin}')
+    query = select(User)
+    for user in session.scalars(query).unique():
+        admin = "admin" if user.is_admin else "not admin"
+        print(f"{user.id} | {user.username} | {admin}")
 
 
-def add_user(name, password, admin):
+def add_user(name, password, admin=False):
     try:
-        User.query.get_by(username=name)
-        logger.info('User with given name exists')
+        query = select(User).where(User.username == name)
+        session.scalars(query).one()
+        logger.error("User with given name exists")
         return
-    except NotFoundError:
+    except NoResultFound:
         pass
 
-    user = User.create(
-        username=name,
-        password=password,
-        is_admin=admin
-    )
+    user = User(username=name, password=password, is_admin=admin)
+    session.add(user)
 
-    logger.info(f'User {user} added')
+    logger.info(f"User {user.username} added")
 
     return user
 
 
-def modify_user(id_, name, password, admin):
+def modify_user(user_id, name=None, password=None, admin=None):
     try:
-        user = User.query.get(id_)
-    except NotFoundError:
-        logger.info('User not found')
+        user = session.get(User, user_id)
+    except NoResultFound:
+        logger.error(f"User {user_id} not found")
         return
 
     if name is not None:
@@ -49,19 +51,19 @@ def modify_user(id_, name, password, admin):
         user.is_admin = admin
 
 
-def add_library(user_id, library_id):
+def add_user_library(user_id, library_id):
     try:
-        user = User.query.get(user_id)
-    except NotFoundError:
-        logger.info('User not found')
+        user = session.get(User, user_id)
+    except NoResultFound:
+        logger.info("User not found")
         return
 
     try:
-        library = Library.query.get(library_id)
-    except NotFoundError:
-        logger.info('Library not found')
+        library = session.get(Library, library_id)
+    except NoResultFound:
+        logger.info("Library not found")
         return
 
     user.libraries.append(library)
 
-    logger.info(f'Library {library} was added to user {user}')
+    logger.info(f"Library {library.name} was added to user {user.username}")

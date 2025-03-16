@@ -1,9 +1,11 @@
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Integer, String
+from sqlalchemy.orm import mapped_column
+
 from mvmusic.models import BaseModel
 
 
 class Image(BaseModel):
-    path = Column(String, nullable=False)
-    mimetype = Column(String)
-    height = Column(Integer)
-    width = Column(Integer)
+    path = mapped_column(String, nullable=False)
+    mimetype = mapped_column(String)
+    height = mapped_column(Integer)
+    width = mapped_column(Integer)

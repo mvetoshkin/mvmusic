@@ -1,34 +1,44 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy import Boolean, ForeignKey, Integer, String
+from sqlalchemy.orm import mapped_column, relationship
 
-from mvmusic.models import BaseModel, ImageModel, PathModel
+from mvmusic.models import BaseModel, ImageMixin, PathMixin, ScannedMixin
 
 
-class Media(BaseModel, PathModel, ImageModel):
-    title: Column = Column(String)
-    year: Column = Column(Integer)
-    track = Column(Integer)
-    disc_number = Column(Integer)
-    duration = Column(Integer)
-    bitrate = Column(Integer)
-    size = Column(Integer)
-    content_type = Column(String)
-    is_video = Column(Boolean)
+class Media(PathMixin, ImageMixin, ScannedMixin, BaseModel):
+    title = mapped_column(String)
+    year = mapped_column(Integer)
+    track = mapped_column(Integer)
+    disc_number = mapped_column(Integer)
+    duration = mapped_column(Integer)
+    bitrate = mapped_column(Integer)
+    size = mapped_column(Integer)
+    content_type = mapped_column(String)
+    is_video = mapped_column(Boolean)
 
-    album_id: Column = Column(
+    album_id = mapped_column(
         String,
-        ForeignKey('album.id', ondelete='cascade')
+        ForeignKey("album.id", ondelete="cascade")
     )
 
-    artist_id: Column = Column(
+    artist_id = mapped_column(
         String,
-        ForeignKey('artist.id', ondelete='cascade')
+        ForeignKey("artist.id", ondelete="cascade")
     )
 
-    album = relationship('Album', uselist=False, lazy='joined')
-    artist = relationship('Artist', uselist=False, lazy='joined')
-    genres = relationship('Genre', secondary='media_genre', lazy='joined')
+    album = relationship(
+        "Album",
+        uselist=False,
+        lazy="joined"
+    )
 
-    @property
-    def suffix(self):
-        return self.path.split('/')[-1].rpartition('.')[-1]
+    artist = relationship(
+        "Artist",
+        uselist=False,
+        lazy="joined"
+    )
+
+    genres = relationship(
+        "Genre",
+        secondary="media_genre",
+        lazy="joined"
+    )

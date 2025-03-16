@@ -1,14 +1,18 @@
-from sqlalchemy import Column, ForeignKey, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.orm import mapped_column, relationship
 
-from mvmusic.models import BaseModel, UserModel
+from mvmusic.models import BaseModel, UserMixin
 
 
-class StarredMedia(BaseModel, UserModel):
-    media_id: Column = Column(
+class StarredMedia(UserMixin, BaseModel):
+    media_id = mapped_column(
         String,
-        ForeignKey('media.id', ondelete='cascade'),
+        ForeignKey("media.id", ondelete="cascade"),
         index=True
     )
 
-    media = relationship('Media', uselist=False, lazy='joined')
+    media = relationship(
+        "Media",
+        uselist=False,
+        lazy="joined"
+    )

@@ -1,167 +1,182 @@
 ### Used to test connectivity with the server. Takes no extra parameters.
-POST {{ domain }}/rest/ping.view
+POST {{domain}}/rest/ping.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&f=json
+
+
+### Get details about the software license. Takes no extra parameters.
+POST {{domain}}/rest/getLicense.view
+Content-Type: application/x-www-form-urlencoded
+
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&f=json
 
 
 ### Returns all configured top-level music folders.
-POST {{ domain }}/rest/getMusicFolders.view
+POST {{domain}}/rest/getMusicFolders.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&f=json
 
 
 ### Returns an indexed structure of all artists.
-POST {{ domain }}/rest/getIndexes.view
+POST {{domain}}/rest/getIndexes.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&f=json
 
 
 ### Returns a listing of all files in a music directory. Typically used
 ### to get list of albums for an artist, or list of songs for an album.
-POST {{ domain }}/rest/getMusicDirectory.view
+POST {{domain}}/rest/getMusicDirectory.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=f404f9ef-3dc8-4096-9ec3-bfa4ba7b19c6
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=39da5388-da90-433e-a47c-d43afbfce3c9&f=json
 
 
 ### Returns all genres.
-POST {{ domain }}/rest/getGenres.view
+POST {{domain}}/rest/getGenres.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&f=json
 
 
 ### Similar to getIndexes, but organizes music according to ID3 tags.
-POST {{ domain }}/rest/getArtists.view
+POST {{domain}}/rest/getArtists.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&f=json
 
 
 ### Returns details for an artist, including a list of albums. This method
 ### organizes music according to ID3 tags.
-POST {{ domain }}/rest/getArtist.view
+POST {{domain}}/rest/getArtist.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=a251bbf5-d469-48d3-b703-5dbe6f7d82b1
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=f480d7c0-1d24-4b26-81a0-e7a2501f96d2&f=json
 
 
 ### Returns details for an album, including a list of songs. This method
 ### organizes music according to ID3 tags.
-POST {{ domain }}/rest/getAlbum.view
+POST {{domain}}/rest/getAlbum.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=004cd7ef-0f02-4e80-bbe8-a4306f45c47d
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=0bfeb33c-e2cf-49fa-92ff-636c1b2f50ac&f=json
 
 
 ### Returns details for a song.
-POST {{ domain }}/rest/getSong.view
+POST {{domain}}/rest/getSong.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=04dda38d-d820-43c1-ac06-97620b466f30
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=f3b35bb5-a060-4d8a-9e56-bce832edc4e5&f=json
 
 
 ### Returns artist info with biography, image URLs and similar artists,
 ### using data from last.fm.
-POST {{ domain }}/rest/getArtistInfo.view
+POST {{domain}}/rest/getArtistInfo.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=a251bbf5-d469-48d3-b703-5dbe6f7d82b1
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=f480d7c0-1d24-4b26-81a0-e7a2501f96d2&f=json
 
 
 ### Similar to getArtistInfo, but organizes music according to ID3 tags.
-POST {{ domain }}/rest/getArtistInfo2.view
+POST {{domain}}/rest/getArtistInfo2.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=a251bbf5-d469-48d3-b703-5dbe6f7d82b1
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=f480d7c0-1d24-4b26-81a0-e7a2501f96d2&f=json
 
 
 ### Returns album notes, image URLs etc, using data from last.fm.
-POST {{ domain }}/rest/getAlbumInfo.view
+POST {{domain}}/rest/getAlbumInfo.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=004cd7ef-0f02-4e80-bbe8-a4306f45c47d
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=0bfeb33c-e2cf-49fa-92ff-636c1b2f50ac&f=json
 
 
 ### Similar to getAlbumInfo, but organizes music according to ID3 tags.
-POST {{ domain }}/rest/getAlbumInfo2.view
+POST {{domain}}/rest/getAlbumInfo2.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=004cd7ef-0f02-4e80-bbe8-a4306f45c47d
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=0bfeb33c-e2cf-49fa-92ff-636c1b2f50ac&f=json
 
 
 ### Returns a random collection of songs from the given artist and similar
 ### artists, using data from last.fm. Typically used for artist radio features.
-POST {{ domain }}/rest/getSimilarSongs.view
+POST {{domain}}/rest/getSimilarSongs.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=a251bbf5-d469-48d3-b703-5dbe6f7d82b1
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=0bfeb33c-e2cf-49fa-92ff-636c1b2f50ac&f=json
 
 
 ### Similar to getSimilarSongs, but organizes music according to ID3 tags.
-POST {{ domain }}/rest/getSimilarSongs2.view
+POST {{domain}}/rest/getSimilarSongs2.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=83ab7a06-4536-4a56-ad8a-3ede2938a7e4
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=0bfeb33c-e2cf-49fa-92ff-636c1b2f50ac&f=json
 
 
 ### Returns random songs matching the given criteria.
-POST {{ domain }}/rest/getRandomSongs.view
+POST {{domain}}/rest/getRandomSongs.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&genre=Soul
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&genre=Hard Rock&f=json
 
 
 ### Returns songs in a given genre.
-POST {{ domain }}/rest/getSongsByGenre.view
+POST {{domain}}/rest/getSongsByGenre.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&genre=Hard Rock&count=5&offset=0
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&genre=Hard Rock&count=5&offset=0&f=json
 
 
 ### Streams a given media file.
-POST {{ domain }}/rest/stream.view
+POST {{domain}}/rest/stream.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=09c94a9d-5ad3-4a62-90d3-4e62434b0f4d
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=df67b1dc-4148-4cea-97c8-834ad1540996
 
 
 ### Downloads a given media file. Similar to stream, but this method returns
 ### the original media data without transcoding or downsampling.
-POST {{ domain }}/rest/download.view
+POST {{domain}}/rest/download.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=09c94a9d-5ad3-4a62-90d3-4e62434b0f4d
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=a7c4dcfb-6560-42ba-a71e-5a67cbe1cb01
 
 
 ### Returns a cover art image.
-POST {{ domain }}/rest/getCoverArt.view
+POST {{domain}}/rest/getCoverArt.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&id=16bea9f5-735c-425c-b976-65fe65c7ad85
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=934b5c6f-e556-4797-838b-ab5b2e4f2b17&size=300
 
 
 ### Attaches a star to a song, album or artist.
-POST {{ domain }}/rest/star.view
+POST {{domain}}/rest/star.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&artistId=81330f67-e071-4358-a33d-b5128bea3aae&artistId=1efb48d2-c4b3-4b94-951b-edffa79a255e
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&artistId=f480d7c0-1d24-4b26-81a0-e7a2501f96d2&artistId=715e4916-6b24-4074-81bb-7e8bf09f13e2
 
 
 ### Removes the star from a song, album or artist.
-POST {{ domain }}/rest/unstar.view
+POST {{domain}}/rest/unstar.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&artistId=1efb48d2-c4b3-4b94-951b-edffa79a255e
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&artistId=715e4916-6b24-4074-81bb-7e8bf09f13e2
+
+
+### Registers the local playback of one or more media files. Typically used
+### when playing media that is cached on the client.
+POST {{domain}}/rest/scrobble.view
+Content-Type: application/x-www-form-urlencoded
+
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=df67b1dc-4148-4cea-97c8-834ad1540996&submission=1
 
 
 ### Get details about a given user, including which authorization roles and
 ### folder access it has. Can be used to enable/disable certain features in
 ### the client, such as jukebox control.
-POST {{ domain }}/rest/getUser.view
+POST {{domain}}/rest/getUser.view
 Content-Type: application/x-www-form-urlencoded
 
-{{ req_params }}&username={{ user }}
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&f=json&username={{user}}

@@ -1,34 +1,30 @@
 import importlib
-import os
+from pathlib import Path
 
 from click.exceptions import ClickException
 
 from mvmusic import models
 from mvmusic.cli import cli
-from mvmusic.libs.database import db
+from mvmusic.libs.database import session
 from mvmusic.libs.logger import init_logger
 from mvmusic.models import BaseModel
 
+init_logger()
+
+for file in Path(models.__file__).parent.iterdir():
+    if not file.name.startswith("__") and file.suffix == ".py":
+        importlib.import_module(f"{models.__package__}.{file.stem}")
+
 
 def main():
-    init_logger()
-    import_models()
-
     # noinspection PyBroadException
     try:
         cli.main(standalone_mode=False)
-        db.session.commit()
+        session.commit()
     except ClickException as exc:
         exc.show()
     except Exception as exc:
-        db.session.rollback()
+        session.rollback()
         raise exc
     finally:
-        db.session.remove()
-
-
-def import_models():
-    for file in os.listdir(os.path.dirname(models.__file__)):
-        if not file.startswith('__') and file.endswith('.py'):
-            name = file.rpartition('.')[0]
-            importlib.import_module(f'{models.__package__}.{name}')
+        session.remove()

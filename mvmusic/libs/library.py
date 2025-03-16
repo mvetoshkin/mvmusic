@@ -1,36 +1,40 @@
 import logging
-import os
+from pathlib import Path
 
-from mvmusic.libs.exceptions import NotFoundError
+from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
+
+from mvmusic.libs.database import session
 from mvmusic.models.library import Library
 
 logger = logging.getLogger(__name__)
 
 
 def list_libraries():
-    for lib in Library.query.all():
-        print(f'{lib.id_:40} {lib.name:20} {lib.path}')
+    query = select(Library)
+    for lib in session.scalars(query):
+        print(f"{lib.id} | {lib.name} | {lib.path}")
 
 
 def add_library(path, name):
-    if not name:
-        name = path.rpartition(os.path.sep)[-1]
+    path = Path(path)
+    name = name or path.name
 
     try:
-        Library.query.get_by(path=path)
-        logger.info('Library with given path exists')
+        query = select(Library).where(Library.path == str(path))
+        session.scalars(query).one()
+        logger.error("Library with given path exists")
         return
-    except NotFoundError:
+    except NoResultFound:
         pass
 
-    if not os.path.exists(path):
-        raise NotFoundError('Given path not found')
+    if not path.exists():
+        logger.error("Given path not found")
+        return
 
-    library = Library.create(
-        path=path,
-        name=name
-    )
+    library = Library(name=name, path=str(path))
+    session.add(library)
 
-    logger.info(f'Library {library} added')
+    logger.info(f"Library {library.name} added")
 
     return library

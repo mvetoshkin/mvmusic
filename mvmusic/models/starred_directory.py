@@ -1,14 +1,18 @@
-from sqlalchemy import Column, ForeignKey, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.orm import mapped_column, relationship
 
-from mvmusic.models import BaseModel, UserModel
+from mvmusic.models import BaseModel, UserMixin
 
 
-class StarredDirectory(BaseModel, UserModel):
-    directory_id: Column = Column(
+class StarredDirectory(UserMixin, BaseModel):
+    directory_id = mapped_column(
         String,
-        ForeignKey('directory.id', ondelete='cascade'),
+        ForeignKey("directory.id", ondelete="cascade"),
         index=True
     )
 
-    directory = relationship('Directory', uselist=False, lazy='joined')
+    directory = relationship(
+        "Directory",
+        uselist=False,
+        lazy="joined"
+    )

@@ -1,14 +1,18 @@
-from sqlalchemy import Column, ForeignKey, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.orm import mapped_column, relationship
 
-from mvmusic.models import BaseModel, UserModel
+from mvmusic.models import BaseModel, UserMixin
 
 
-class StarredArtist(BaseModel, UserModel):
-    artist_id: Column = Column(
+class StarredArtist(UserMixin, BaseModel):
+    artist_id = mapped_column(
         String,
-        ForeignKey('artist.id', ondelete='cascade'),
+        ForeignKey("artist.id", ondelete="cascade"),
         index=True
     )
 
-    artist = relationship('Artist', uselist=False, lazy='joined')
+    artist = relationship(
+        "Artist",
+        uselist=False,
+        lazy="joined"
+    )

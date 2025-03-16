@@ -1,23 +1,22 @@
-from sqlalchemy.orm import relationship
+from sqlalchemy import String
+from sqlalchemy.orm import mapped_column, relationship
 
-from mvmusic.models import BaseModel, ImageModel, PathModel
+from mvmusic.models import BaseModel, ImageMixin, PathMixin
 
 
-class Directory(BaseModel, PathModel, ImageModel):
+class Directory(PathMixin, ImageMixin, BaseModel):
+    name = mapped_column(String, nullable=False)
+
     children = relationship(
-        'Directory',
-        lazy='dynamic',
+        "Directory",
+        lazy="dynamic",
         viewonly=True,
-        order_by='Directory.path.asc()'
+        order_by="Directory.path.asc()"
     )
 
     media = relationship(
-        'Media',
-        lazy='dynamic',
+        "Media",
+        lazy="dynamic",
         viewonly=True,
-        order_by='Media.track.asc(), Media.title.asc()'
+        order_by="Media.track.asc(), Media.title.asc()"
     )
-
-    @property
-    def name(self):
-        return self.path.rpartition('/')[-1]

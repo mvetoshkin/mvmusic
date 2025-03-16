@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["mvmusic*"]
+
+[project]
+dynamic = ["version"]
+name = "mvmusic"
+description = "Simple music library with Subsonic API support"
+authors = [
+    {name = "Mikhail Vetoshkin", email = "mikhail@vetoshkin.dev"}
+]
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">= 3.11"
+dependencies = [
+    "alembic == 1.15.1",
+    "bcrypt == 4.3.0",
+    "click == 8.1.8",
+    "flask == 3.1.0",
+    "mutagen == 1.47.0",
+    "pillow == 11.1.0",
+    "psycopg2 == 2.9.10",
+    "python-dateutil == 2.9.0.post0",
+    "python-dotenv == 1.0.1",
+    "requests === 2.32.3",
+    "sqlalchemy == 2.0.39",
+]
+
+[project.scripts]
+mvmusic = "mvmusic:main"
+
+[project.urls]
+Repository = "https://github.com/mvetoshkin/mvmusic"

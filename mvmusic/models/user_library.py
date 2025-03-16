@@ -1,21 +1,22 @@
-from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.orm import mapped_column
 
 from mvmusic.models import BaseModel
 
 
 class UserLibrary(BaseModel):
-    id_ = None
+    id = None
 
-    user_id = Column(
+    user_id = mapped_column(
         String,
-        ForeignKey('user.id', ondelete='cascade'),
+        ForeignKey("user.id", ondelete="cascade"),
         nullable=False,
         primary_key=True
     )
 
-    library_id = Column(
+    library_id = mapped_column(
         String,
-        ForeignKey('library.id', ondelete='cascade'),
+        ForeignKey("library.id", ondelete="cascade"),
         nullable=False,
         primary_key=True
     )

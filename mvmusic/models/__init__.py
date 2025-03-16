@@ -1,155 +1,95 @@
 import re
-from datetime import datetime
 from uuid import uuid4
 
-import shortuuid
-from sqlalchemy import Column, DateTime, ForeignKey, String
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy.orm import Query, relationship
+from sqlalchemy import Boolean, DateTime, ForeignKey, String
+from sqlalchemy.orm import DeclarativeBase, declared_attr, mapped_column, \
+    relationship
 
-from mvmusic.libs.database import db
-from mvmusic.libs.exceptions import NotFoundError
+from mvmusic.libs import utcnow
 
 
-class BaseQuery(Query):
-    def one(self, *filters):
-        try:
-            if filters:
-                return self.filter(*filters).one()
-            else:
-                return super(BaseQuery, self).one()
-        except NoResultFound:
-            raise NotFoundError
-
-    def get(self, ident):
-        obj = super(BaseQuery, self).get(ident)
-        if not obj:
-            raise NotFoundError
-        return obj
-
-    def get_by(self, **kwargs):
-        return self.filter_by(**kwargs).one()
-
-
-class BaseModel(declarative_base()):
+class BaseModel(DeclarativeBase):
     __abstract__ = True
 
-    name_prefix = None
-    query = db.session.query_property(query_cls=BaseQuery)
-
-    id_: Column = Column(
-        'id',
-        String(36),
+    id = mapped_column(
+        String,
         primary_key=True,
         default=lambda: str(uuid4())
     )
 
-    created_date: Column = Column(
+    created_at = mapped_column(
         DateTime,
         nullable=False,
-        default=datetime.utcnow
+        default=utcnow
     )
 
-    modified_date: Column = Column(
+    modified_at = mapped_column(
         DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=utcnow,
+        onupdate=utcnow
     )
+
+    @declared_attr.directive
+    def __tablename__(self):
+        return re.sub(r"(?<!^)(?=[A-Z])", "_", self.__name__).lower()
 
     def __repr__(self):
-        return f'<{self.__class__.__name__} {self.id_}>'
-
-    @declared_attr
-    def __tablename__(self):
-        name = re.sub(r'(?<!^)(?=[A-Z])', '_', self.__name__).lower()
-        if self.name_prefix:
-            name = self.name_prefix + '_' + name
-        return name
-
-    @property
-    def short_id(self):
-        return shortuuid.encode(self.id_)
-
-    @classmethod
-    def create(cls, *args, **kwargs):
-        obj = cls(*args, **kwargs)
-        db.session.add(obj)
-        db.session.flush()
-        return obj
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.flush()
+        return f"<{self.__class__.__name__} {self.id}>"
 
 
-class PathModel:
-    path = Column(String, nullable=False, index=True)
-    last_seen = Column(DateTime)
+class PathMixin:
+    last_seen = mapped_column(DateTime)
+    path = mapped_column(String, nullable=False, index=True)
 
-    @declared_attr
-    def library_id(self) -> Column:
-        return Column(
-            String,
-            ForeignKey('library.id', ondelete='cascade'),
-            nullable=False
-        )
+    library_id = mapped_column(
+        String,
+        ForeignKey("library.id", ondelete="cascade"),
+        nullable=False
+    )
 
-    @declared_attr
-    def parent_id(self) -> Column:
-        return Column(
-            String,
-            ForeignKey('directory.id', ondelete='cascade')
-        )
+    parent_id = mapped_column(
+        String,
+        ForeignKey("directory.id", ondelete="cascade")
+    )
 
     @declared_attr
     def library(self):
-        return relationship(
-            'Library',
-            lazy='joined',
-            uselist=False
-        )
+        return relationship("Library", lazy="joined", uselist=False)
 
     @declared_attr
     def parent(self):
         return relationship(
-            'Directory',
-            lazy='joined',
+            "Directory",
+            lazy="joined",
             uselist=False,
-            remote_side='Directory.id_'
+            remote_side="Directory.id"
         )
 
 
-class ImageModel:
-    @declared_attr
-    def image_id(self):
-        return Column(
-            String,
-            ForeignKey('image.id', ondelete='set null')
-        )
+class ImageMixin:
+    image_id = mapped_column(
+        String,
+        ForeignKey("image.id", ondelete="set null")
+    )
 
     @declared_attr
     def image(self):
-        return relationship(
-            'Image',
-            uselist=False
-        )
+        return relationship("Image", uselist=False)
 
 
-class UserModel:
-    @declared_attr
-    def user_id(self):
-        return Column(
-            String,
-            ForeignKey('user.id', ondelete='cascade'),
-            nullable=False,
-            index=True
-        )
+class UserMixin:
+    user_id = mapped_column(
+        String,
+        ForeignKey("user.id", ondelete="cascade"),
+        nullable=False,
+        index=True
+    )
 
     @declared_attr
     def user(self):
-        return relationship(
-            'User',
-            uselist=False
-        )
+        return relationship("User", uselist=False)
+
+
+class ScannedMixin:
+    scanned = mapped_column(Boolean, default=False)
