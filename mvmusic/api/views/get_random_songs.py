@@ -37,7 +37,7 @@ def get_random_songs_view():
     if genre:
         try:
             genre_query = select(Genre).where(
-                func.lower(Genre.name) == func.lower(genre)
+                func.lower(Genre.name) == func.lower(genre)  # type: ignore
             )
             genre_obj = session.scalars(genre_query).one()
         except NoResultFound:

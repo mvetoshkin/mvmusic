@@ -31,7 +31,9 @@ def get_songs_by_genre_view():
         library_ids = [music_folder_id]
 
     try:
-        query = select(Genre).where(func.lower(Genre.name) == func.lower(genre))
+        query = select(Genre).where(
+            func.lower(Genre.name) == func.lower(genre)  # type: ignore
+        )
         genre_obj = session.scalars(query).one()
     except NoResultFound:
         raise BadRequest("Genre not found")

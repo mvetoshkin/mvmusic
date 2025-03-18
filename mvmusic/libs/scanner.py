@@ -473,9 +473,8 @@ def purge(library, start_ts):
 
     media_q = select(Media.album_id).distinct().where(Media.album_id != None)
 
-    query = select(Album).options(noload("*")).where(
-        Album.id.not_in(media_q)
-    )
+    query = select(Album).options(noload("*"))  # type: ignore
+    query = query.where(Album.id.not_in(media_q))
 
     for item in session.scalars(query):
         session.delete(item)
@@ -486,7 +485,8 @@ def purge(library, start_ts):
     album_q = select(Album.artist_id).distinct().where(Album.artist_id != None)
     media_q = select(Media.artist_id).distinct().where(Media.artist_id != None)
 
-    query = select(Artist).options(noload("*")).where(
+    query = select(Artist).options(noload("*"))  # type: ignore
+    query = query.where(
         Artist.id.not_in(album_q),
         Artist.id.not_in(media_q)
     )
@@ -504,7 +504,8 @@ def purge(library, start_ts):
         Directory.image_id != None
     )
 
-    query = select(Image).options(noload("*")).where(
+    query = select(Image).options(noload("*"))  # type: ignore
+    query = query.where(
         Image.id.not_in(artist_q),
         Image.id.not_in(album_q),
         Image.id.not_in(media_q),
