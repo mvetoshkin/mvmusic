@@ -108,6 +108,13 @@ Content-Type: application/x-www-form-urlencoded
 u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=0bfeb33c-e2cf-49fa-92ff-636c1b2f50ac&f=json
 
 
+### Returns a list of random, newest, highest rated etc. albums.
+POST {{domain}}/rest/getAlbumList.view
+Content-Type: application/x-www-form-urlencoded
+
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&type=highest&f=json
+
+
 ### Similar to getSimilarSongs, but organizes music according to ID3 tags.
 POST {{domain}}/rest/getSimilarSongs2.view
 Content-Type: application/x-www-form-urlencoded
