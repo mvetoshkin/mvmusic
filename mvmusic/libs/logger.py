@@ -1,13 +1,18 @@
-import logging
+import logging.config
 
-from mvmusic.settings import DEBUG, DEBUG_SQL
+from mvmusic.settings import DEBUG, LOGGING
+
+
+class RequireDebugFalse(logging.Filter):
+    def filter(self, record):
+        return not DEBUG
+
+
+class RequireDebugTrue(logging.Filter):
+    def filter(self, record):
+        return DEBUG
 
 
 def init_logger():
-    logging.basicConfig(
-        level=logging.DEBUG if DEBUG else logging.INFO,
-        format="%(asctime)s %(levelname)s %(message)s",
-    )
+    logging.config.dictConfig(LOGGING)
 
-    if DEBUG_SQL:
-        logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)

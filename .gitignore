@@ -6,6 +6,7 @@
 *.egg
 *.egg-info/
 *.env
+*.log
 *.pyc
 
 http-client.private.env.json
