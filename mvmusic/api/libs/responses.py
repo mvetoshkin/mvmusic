@@ -5,8 +5,8 @@ from flask import g
 
 from mvmusic.api.libs import dict2xml
 from mvmusic.api.libs.types import JSONEncoder
-from ..serializers.response_status import reponse_status_serializer
-from ..serializers.version import version_serializer
+from mvmusic.api.serializers.response_status import reponse_status_serializer
+from mvmusic.api.serializers.version import version_serializer
 
 
 def make_response(data=None, status=200, headers=None):
