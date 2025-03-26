@@ -36,8 +36,10 @@ def before_request():
 
 @bp.before_request
 def get_current_user():
+    g.current_user = None
+
     if "u" not in request.values:
-        return
+        return None
 
     username = request.values["u"]
 
