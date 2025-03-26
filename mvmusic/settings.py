@@ -66,7 +66,8 @@ LOGGING = {
     "loggers": {
         "sqlalchemy.engine": {
             "handlers": ["console"],
-            "level": "INFO"
+            "level": "INFO",
+            "propagate": False
         }
     }
 }
