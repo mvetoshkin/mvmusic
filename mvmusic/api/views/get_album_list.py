@@ -2,7 +2,7 @@ from flask import g, request
 from sqlalchemy import func, nullslast, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import noload
-from werkzeug.exceptions import BadRequest, Forbidden
+from werkzeug.exceptions import BadRequest, NotFound
 
 from mvmusic.api.libs.decorators import auth_required, route
 from mvmusic.api.libs.responses import make_response
@@ -15,7 +15,6 @@ from mvmusic.models.directory_rating import DirectoryRating
 from mvmusic.models.genre import Genre
 from mvmusic.models.history import History
 from mvmusic.models.media import Media
-from mvmusic.models.media_genre import MediaGenre
 from mvmusic.models.starred_directory import StarredDirectory
 
 
@@ -34,7 +33,7 @@ def get_album_list_view():
     library_ids = [i.id for i in g.current_user.libraries]
     if music_folder_id:
         if music_folder_id not in library_ids:
-            raise Forbidden
+            raise NotFound
         library_ids = [music_folder_id]
 
     if list_type == "random":
@@ -49,7 +48,7 @@ def get_album_list_view():
 
     if list_type == "newest":
         query = select(Directory, Media.year).distinct()
-        query = query.join(Media)
+        query = query.join(Directory.media)
         query = query.where(Media.year != None)
         query = query.order_by(Media.year.desc(), Directory.name)
 
@@ -77,8 +76,7 @@ def get_album_list_view():
         stats_sq = stats_sq.subquery()
 
         query = select(Directory, stats_sq.c.plays_count).distinct()
-        query = query.select_from(Directory)
-        query = query.join(Media)
+        query = query.join(Directory.media)
         query = query.outerjoin(stats_sq)
         query = query.order_by(
             nullslast(stats_sq.c.plays_count.desc()),
@@ -93,8 +91,7 @@ def get_album_list_view():
         stats_sq = stats_sq.subquery()
 
         query = select(Directory, stats_sq.c.played_at).distinct()
-        query = query.select_from(Directory)
-        query = query.join(Media)
+        query = query.join(Directory.media)
         query = query.outerjoin(stats_sq)
         query = query.order_by(
             nullslast(stats_sq.c.played_at.desc()),
@@ -103,17 +100,15 @@ def get_album_list_view():
 
     elif list_type == "alphabeticalByName":
         query = select(Directory, Album.name).distinct()
-        query = query.select_from(Directory)
-        query = query.join(Media)
-        query = query.join(Album)
+        query = query.join(Directory.media)
+        query = query.join(Media.album)
         query = query.order_by(Album.name)
 
     elif list_type == "alphabeticalByArtist":
         query = select(Directory, Artist.name, Album.name).distinct()
-        query = query.select_from(Directory)
-        query = query.join(Media)
-        query = query.join(Artist, Artist.id == Media.artist_id)
-        query = query.join(Album, Album.id == Media.album_id)
+        query = query.join(Directory.media)
+        query = query.join(Media.artist)
+        query = query.join(Artist.albums)
         query = query.order_by(Artist.name, Album.name)
 
     elif list_type == "starred":
@@ -127,7 +122,7 @@ def get_album_list_view():
         to_year = request.values["toYear"]
 
         query = select(Directory, Media.year).distinct()
-        query = query.join(Media)
+        query = query.join(Directory.media)
         query = query.where(Media.year != None)
 
         reverse = False
@@ -150,17 +145,15 @@ def get_album_list_view():
         genre = request.values["genre"]
 
         try:
-            genre_query = select(Genre).where(
-                func.lower(Genre.name) == func.lower(genre)  # type: ignore
-            )
+            genre_query = select(Genre).where(Genre.name.ilike(genre))
             genre_obj = session.scalars(genre_query).one()
         except NoResultFound:
             raise BadRequest("Genre not found")
 
         query = select(Directory).distinct()
-        query = query.join(Media)
-        query = query.join(MediaGenre)
-        query = query.where(MediaGenre.genre_id == genre_obj.id)
+        query = query.join(Directory.media)
+        query = query.join(Media.genres)
+        query = query.where(Genre.id == genre_obj.id)
         query = query.order_by(Directory.name)
 
     else:

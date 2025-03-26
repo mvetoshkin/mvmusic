@@ -1,28 +1,29 @@
 from pathlib import Path
 
 from flask import g, request, send_file
+from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
-from werkzeug.exceptions import Forbidden, NotFound
+from sqlalchemy.orm import joinedload
+from werkzeug.exceptions import NotFound
 
 from mvmusic.api.libs.decorators import auth_required, route
 from mvmusic.libs.database import session
-from mvmusic.models.library import Library
 from mvmusic.models.media import Media
 
 
 @route("/download")
 @auth_required
 def download_view():
-    media_id = request.values["id"]
+    query = select(Media).options(joinedload(Media.library))
+    query = query.where(Media.id == request.values["id"])
 
     try:
-        media = session.get_one(Media, media_id)
-        library = session.get_one(Library, media.library_id)
+        media = session.scalars(query).one()
     except NoResultFound:
         raise NotFound
 
-    if library not in g.current_user.libraries:
-        raise Forbidden
+    if media.library not in g.current_user.libraries:
+        raise NotFound
 
-    file_path = Path(library.path) / media.path
+    file_path = Path(media.library.path) / media.path
     return send_file(file_path, mimetype=media.content_type)

@@ -29,7 +29,7 @@ def scrobble_local(media, now_playing):
             History.now_playing == True
         )
 
-        history = session.scalars(query).unique().one()
+        history = session.scalars(query).one()
         history.modified_at = utcnow()
         history.now_playing = now_playing
 

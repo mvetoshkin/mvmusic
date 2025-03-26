@@ -6,8 +6,9 @@ import time
 from pathlib import Path
 
 from flask import Blueprint, g, request
-from sqlalchemy import Engine, event, select
+from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import joinedload
 from werkzeug import exceptions as exc
 
 from mvmusic.api import views
@@ -17,7 +18,7 @@ from mvmusic.api.serializers.error import error_serializer
 from mvmusic.libs.database import session
 from mvmusic.models.client import Client
 from mvmusic.models.user import User
-from mvmusic.settings import DEBUG, DEBUG_SQL
+from mvmusic.settings import DEBUG
 
 bp = Blueprint("subsonic_api", __name__, url_prefix="/rest")
 logger = logging.getLogger(__name__)
@@ -41,7 +42,11 @@ def get_current_user():
     username = request.values["u"]
 
     try:
-        query = select(User).where(User.username == username)
+        query = select(User).options(
+            joinedload(User.libraries),
+            joinedload(User.clients)
+        )
+        query = query.where(User.username == username)
         user = session.scalars(query).unique().one()
     except NoResultFound:
         raise exc.Unauthorized
@@ -67,18 +72,16 @@ def get_current_user():
 @bp.before_request
 def get_current_client():
     if not g.current_user:
-        return
+        raise exc.Unauthorized
 
     client = request.values["c"]
 
-    try:
-        query = select(Client).where(
-            Client.name == client,
-            Client.user_id == g.current_user.id
-        )
-        client_obj = session.scalars(query).one()
+    client_obj = None
+    for item in g.current_user.clients:
+        if item.name.lower() == client.lower():
+            client_obj = item
 
-    except NoResultFound:
+    if not client_obj:
         client_obj = Client(name=client, user_id=g.current_user.id)
         session.add(client_obj)
 
@@ -124,23 +127,6 @@ def error_handler(error):
     }
 
     return make_response(data, status_code)
-
-
-if DEBUG_SQL:
-    # noinspection PyUnusedLocal
-    @event.listens_for(Engine, "before_cursor_execute")
-    def before_cursor_execute(conn, cursor, statement, parameters, context,
-                              executemany):
-        conn.info.setdefault("query_start_time", []).append(time.time())
-        logger.debug(f"Start Query: {statement}. With parameters: {parameters}")
-
-
-    # noinspection PyUnusedLocal
-    @event.listens_for(Engine, "after_cursor_execute")
-    def after_cursor_execute(conn, cursor, statement, parameters, context,
-                             executemany):
-        total = time.time() - conn.info["query_start_time"].pop(-1)
-        logger.debug(f"Query Complete. Total Time: {str(total)}\n")
 
 
 for file in Path(views.__file__).parent.iterdir():

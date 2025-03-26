@@ -9,7 +9,7 @@ load_dotenv()
 
 CACHE_PATH = Path(os.environ["MVMUSIC_CACHE_PATH"]).absolute()
 DEBUG = os.environ.get("MVMUSIC_DEBUG", "false") == "true"
-DEBUG_SQL = False
+DEBUG_SQL = os.environ.get("MVMUSIC_DEBUG_SQL", "false") == "true"
 DISCOGS_ACCESS_TOKEN = os.environ["MVMUSIC_DISCOGS_ACCESS_TOKEN"]
 MEDIA_PATH = Path(os.environ["MVMUSIC_MEDIA_PATH"]).absolute()
 MIGRATIONS_EXCLUDE_TABLES = []

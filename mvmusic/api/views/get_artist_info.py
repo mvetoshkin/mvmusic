@@ -1,5 +1,5 @@
 from flask import g, request
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import NoResultFound
 from werkzeug.exceptions import NotFound
 
@@ -16,19 +16,25 @@ from mvmusic.models.starred_artist import StarredArtist
 @route("/getArtistInfo")
 @auth_required
 def get_artist_info_view():
-    artist_id = request.values["id"]
     count = int(request.values.get("count", "20"))
 
+    query = select(Artist)
+    query = query.join(Artist.media)
+    query = query.where(
+        Media.library_id.in_([i.id for i in g.current_user.libraries]),
+        Artist.id == request.values["id"]
+    )
+
     try:
-        artist = session.get_one(Artist, artist_id)
+        artist = session.scalars(query).unique().one()
     except NoResultFound:
-        return NotFound
+        raise NotFound
 
     similar_artists = get_similar_artists(artist, count)
 
     query = select(StarredArtist).where(
         StarredArtist.artist_id.in_({i.id for i in similar_artists}),
-        StarredArtist.user == g.current_user
+        StarredArtist.user_id == g.current_user.id
     )
 
     starred_artists = {
@@ -42,19 +48,22 @@ def get_artist_info_view():
 
 def get_similar_artists(artist, count):
     genres_sq = select(Genre.id).distinct()
-    genres_sq = genres_sq.join(Media.genres)
+    genres_sq = genres_sq.join(Genre.media)
     genres_sq = genres_sq.where(Media.artist_id == artist.id)
 
     artists_sq = select(Media.artist_id).distinct()
     artists_sq = artists_sq.join(Media.genres)
     artists_sq = artists_sq.where(
         Genre.id.in_(genres_sq),
+        Media.artist_id.isnot(None),
         Media.artist_id != artist.id,
-        Media.library_id.in_({i.id for i in g.current_user.libraries})
+        Media.library_id.in_([i.id for i in g.current_user.libraries])
     )
 
-    if count:
-        artists_sq = artists_sq.limit(count)
-
     query = select(Artist).where(Artist.id.in_(artists_sq))
+    query = query.order_by(func.random())
+
+    if count:
+        query = query.limit(count)
+
     return [i for i in session.scalars(query)]

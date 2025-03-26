@@ -1,22 +1,53 @@
-from sqlalchemy import String
+from sqlalchemy import DateTime, ForeignKey, String, Index
 from sqlalchemy.orm import mapped_column, relationship
 
-from mvmusic.models import BaseModel, ImageMixin, PathMixin
+from mvmusic.models import BaseModel
 
 
-class Directory(PathMixin, ImageMixin, BaseModel):
+class Directory(BaseModel):
+    last_seen = mapped_column(DateTime, index=True, nullable=False)
     name = mapped_column(String, nullable=False)
+    path = mapped_column(String, nullable=False, unique=True)
+
+    image_id = mapped_column(
+        String,
+        ForeignKey("image.id", ondelete="set null"),
+        index=True
+    )
+
+    library_id = mapped_column(
+        String,
+        ForeignKey("library.id", ondelete="cascade"),
+        index=True,
+        nullable=False
+    )
+
+    parent_id = mapped_column(
+        String,
+        ForeignKey("directory.id", ondelete="cascade"),
+        index=True
+    )
 
     children = relationship(
         "Directory",
-        lazy="dynamic",
-        viewonly=True,
-        order_by="Directory.path.asc()"
+        order_by="Directory.name",
+        viewonly=True
     )
 
-    media = relationship(
-        "Media",
-        lazy="dynamic",
-        viewonly=True,
-        order_by="Media.track.asc(), Media.title.asc()"
+    image = relationship("Image", uselist=False)
+    library = relationship("Library", innerjoin=True, uselist=False)
+    media = relationship("Media", order_by="Media.title", viewonly=True)
+
+    parent = relationship(
+        "Directory",
+        uselist=False,
+        remote_side="Directory.id"
     )
+
+
+Index(
+    "ix_directory_library_id_path",
+    Directory.library_id,
+    Directory.path,
+    unique=True
+)

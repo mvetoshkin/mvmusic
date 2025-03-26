@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from flask import g, request
 from sqlalchemy import func, select
-from werkzeug.exceptions import Forbidden
+from werkzeug.exceptions import NotFound
 
 from mvmusic.api.libs import ignored_articles
 from mvmusic.api.libs.decorators import auth_required, route
@@ -19,12 +19,11 @@ from mvmusic.models.media import Media
 @auth_required
 def get_artists_view():
     music_folder_id = request.values.get("musicFolderId")
-
     library_ids = [i.id for i in g.current_user.libraries]
 
     if music_folder_id:
         if music_folder_id not in library_ids:
-            raise Forbidden
+            raise NotFound
         library_ids = [music_folder_id]
 
     indexes = get_indexes(library_ids)
@@ -38,10 +37,10 @@ def get_indexes(library_ids):
     indexes_raw = defaultdict(list)
     ignored = ignored_articles()
 
-    query = select(Artist).join(Artist.media)
+    query = select(Artist).distinct().join(Artist.media)
     query = query.where(Media.library_id.in_(library_ids))
 
-    for item in session.scalars(query).unique():
+    for item in session.scalars(query):
         name = ignored.sub("", item.name) if ignored else item.name
 
         index = name[0].upper()
@@ -73,7 +72,7 @@ def get_albums_data(library_ids):
         func.count(Album.id.distinct()).label("albums_count"),
     )
     query = query.outerjoin(Artist.albums)
-    query = query.outerjoin(Artist.media)
+    query = query.join(Artist.media)
     query = query.where(Media.library_id.in_(library_ids))
     query = query.group_by(Artist.id)
 

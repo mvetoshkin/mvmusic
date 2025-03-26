@@ -11,7 +11,7 @@ from dateutil import parser
 from PIL import Image as PILImage
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import noload
+from sqlalchemy.orm import joinedload
 
 from mvmusic.libs import get_request, utcnow
 from mvmusic.libs.database import session
@@ -32,24 +32,13 @@ IMAGES_DIR = Path("images")
 logger = logging.getLogger(__name__)
 
 
-def scan_libraries(ids=None, full=False):
-    if not ids:
-        query = select(Library)
-        ids = [i.id for i in session.scalars(query)]
-
-    for lib_id in ids:
-        scan_library(lib_id, full)
-
-
-def scan_library(library_id, full=False):
-    library = session.get(Library, library_id)
-
-    logger.info(f"Scanning of the {library.name} library started")
-
+def scan_libraries(full=False):
     start_ts = utcnow()
 
-    scan_directory(library, library.path)
-    session.commit()
+    query = select(Library)
+    for library in session.scalars(query):
+        scan_directory(library, library.path)
+        session.commit()
 
     scan_media_data(full)
     session.commit()
@@ -58,9 +47,7 @@ def scan_library(library_id, full=False):
     scan_albums(full)
     session.commit()
 
-    purge(library, start_ts)
-
-    logger.info(f"Scanning of the {library.name} library finished")
+    purge(start_ts)
 
 
 def scan_directory(library, path, parent_dir=None):
@@ -72,7 +59,7 @@ def scan_directory(library, path, parent_dir=None):
         if item.is_dir():
             try:
                 query = select(Directory).where(
-                    Directory.library == library,
+                    Directory.library_id == library.id,
                     Directory.path == item_path
                 )
 
@@ -82,11 +69,13 @@ def scan_directory(library, path, parent_dir=None):
             except NoResultFound:
                 logger.info(f"Found new folder {item.path}")
 
-                directory = Directory()
-                directory.path = item_path
-                directory.last_seen = utcnow()
-                directory.library = library
-                directory.parent = parent_dir
+                directory = Directory(
+                    name=item.name,
+                    last_seen=utcnow(),
+                    path=item_path,
+                    library_id=library.id,
+                    parent_id=parent_dir.id if parent_dir else None
+                )
 
                 session.add(directory)
 
@@ -95,31 +84,35 @@ def scan_directory(library, path, parent_dir=None):
         else:
             try:
                 query = select(Media).where(
-                    Media.library == library,
+                    Media.library_id == library.id,
                     Media.path == item_path
                 )
 
-                media = session.scalars(query).unique().one()
+                media = session.scalars(query).one()
                 media.last_seen = utcnow()
 
             except NoResultFound:
                 logger.info(f"Found new media {item.path}")
 
                 media = Media(
-                    path=item_path,
                     last_seen=utcnow(),
-                    parent_id=parent_dir.id,
-                    library_id=library.id
+                    path=item_path,
+                    library_id=library.id,
+                    parent_id=parent_dir.id
                 )
 
                 session.add(media)
 
 
 def scan_media_data(full=False):
-    query = select(Media)
+    query = select(Media).options(
+        joinedload(Media.image),
+        joinedload(Media.genres),
+        joinedload(Media.parent)
+    )
 
     if not full:
-        query = query.where(Media.scanned == False)
+        query = query.where(Media.scanned.is_(False))
 
     for item in session.scalars(query).unique():
         scan_media_file(item)
@@ -133,38 +126,44 @@ def scan_media_file(media):
 
     media_file = mutagen.File(media_path)
 
-    if type(media_file) == mutagen.flac.FLAC:
-        parse_flac(media, media_file)
-    if type(media_file) == mutagen.mp3.MP3:
-        parse_mp3(media, media_file)
-
     media.bitrate = int(media_file.info.bitrate / 1000)
     media.duration = round(media_file.info.length)
     media.content_type = media_file.mime[0]
     media.size = os.stat(media_path).st_size
     media.is_video = False
 
+    tags = None
 
-def parse_flac(media, file):
+    if type(media_file) == mutagen.flac.FLAC:
+        tags = parse_flac(media_file)
+    if type(media_file) == mutagen.mp3.MP3:
+        tags = parse_mp3(media_file)
+
+    if tags:
+        apply_tags(media, **tags)
+    else:
+        logger.info(f"Tags not found for {media_path}")
+
+
+def parse_flac(file):
     pictures = getattr(file, "pictures")
     image = pictures[0].data if pictures else None
 
     artist_name = flac_tag(file, "ALBUMARTIST") or \
                   flac_tag(file, "ARTIST")
 
-    parse_tags(
-        media,
-        title=flac_tag(file, "TITLE"),
-        release_date=flac_tag(file, "ORIGINALDATE"),
-        track=flac_tag(file, "TRACKNUMBER"),
-        disc_number=flac_tag(file, "DISCNUMBER"),
-        artist_name=artist_name,
-        album_name=flac_tag(file, "ALBUM"),
-        mb_artist_id=flac_tag(file, "MUSICBRAINZ_ARTISTID"),
-        mb_album_id=flac_tag(file, "MUSICBRAINZ_ALBUMID"),
-        image=image,
-        genres=file.tags.get("GENRE")
-    )
+    return {
+        "title": flac_tag(file, "TITLE"),
+        "release_date": flac_tag(file, "ORIGINALDATE"),
+        "track": flac_tag(file, "TRACKNUMBER"),
+        "disc_number": flac_tag(file, "DISCNUMBER"),
+        "artist_name": artist_name,
+        "album_name": flac_tag(file, "ALBUM"),
+        "mb_artist_id": flac_tag(file, "MUSICBRAINZ_ARTISTID"),
+        "mb_album_id": flac_tag(file, "MUSICBRAINZ_ALBUMID"),
+        "image": image,
+        "genres": file.tags.get("GENRE")
+    }
 
 
 def flac_tag(file, tag_name):
@@ -178,25 +177,24 @@ def flac_tag(file, tag_name):
     return tag[0].strip()
 
 
-def parse_mp3(media, file):
+def parse_mp3(file):
     artist_name = mp3_tag(file, "TPE2") or \
                   mp3_tag(file, "TPE1")
 
     disc, track = get_disc_and_track(mp3_tag(file, "TRCK"))
 
-    parse_tags(
-        media,
-        title=mp3_tag(file, "TIT2"),
-        release_date=mp3_tag(file, "TDOR"),
-        track=track,
-        disc_number=disc,
-        artist_name=artist_name,
-        album_name=mp3_tag(file, "TALB"),
-        mb_artist_id=mp3_tag(file, "TXXX:MusicBrainz Artist Id"),
-        mb_album_id=mp3_tag(file, "TXXX:MusicBrainz Album Id"),
-        image=mp3_tag(file, "APIC:"),
-        genres=mp3_tag(file, "TCON")
-    )
+    return {
+        "title": mp3_tag(file, "TIT2"),
+        "release_date": mp3_tag(file, "TDOR"),
+        "track": track,
+        "disc_number": disc,
+        "artist_name": artist_name,
+        "album_name": mp3_tag(file, "TALB"),
+        "mb_artist_id": mp3_tag(file, "TXXX:MusicBrainz Artist Id"),
+        "mb_album_id": mp3_tag(file, "TXXX:MusicBrainz Album Id"),
+        "image": mp3_tag(file, "APIC:"),
+        "genres": mp3_tag(file, "TCON")
+    }
 
 
 def get_disc_and_track(track):
@@ -230,7 +228,7 @@ def mp3_tag(file, tag_name):
     return text.strip()
 
 
-def parse_tags(media, title, release_date, track, disc_number,
+def apply_tags(media, title, release_date, track, disc_number,
                artist_name, album_name, mb_artist_id, mb_album_id, image,
                genres):
     genres = genres or []
@@ -270,10 +268,10 @@ def parse_tags(media, title, release_date, track, disc_number,
 
 
 def is_image_same(obj, image):
-    if obj.image is None and image is None:
+    if obj.image_id is None and image is None:
         return True
 
-    if bool(obj.image is None) != bool(image is None):
+    if bool(obj.image_id is None) != bool(image is None):
         return False
 
     file_path = MEDIA_PATH / obj.image.path
@@ -318,11 +316,13 @@ def get_artist(name):
     if not name:
         name = "[unknown]"
 
+    artist_name = name.strip()
+
     try:
-        query = select(Artist).where(Artist.name == name)
+        query = select(Artist).where(Artist.name.ilike(artist_name))
         artist = session.scalars(query).one()
     except NoResultFound:
-        artist = Artist(name=name)
+        artist = Artist(name=artist_name)
         session.add(artist)
 
     return artist
@@ -332,26 +332,28 @@ def get_album(artist, name, year):
     if not name:
         name = "[non-album tracks]"
 
+    album_name = name.strip()
+
     try:
         query = select(Album).where(
-            Album.artist_id == artist.id,
-            Album.name == name,
-            Album.year == year
+            Album.name.ilike(album_name),
+            Album.year == year,
+            Album.artist_id == artist.id
         )
         album = session.scalars(query).one()
 
     except NoResultFound:
-        album = Album(name=name, year=year, artist_id=artist.id)
+        album = Album(name=album_name, year=year, artist_id=artist.id)
         session.add(album)
 
     return album
 
 
-def get_genre(genre_name):
-    genre_name = genre_name.strip()
+def get_genre(name):
+    genre_name = name.strip()
 
     try:
-        query = select(Genre).where(Genre.name == genre_name)
+        query = select(Genre).where(Genre.name.ilike(genre_name))
         return session.scalars(query).one()
     except NoResultFound:
         genre = Genre(name=genre_name)
@@ -366,10 +368,12 @@ def set_parent_image(obj):
 
 
 def scan_artists(full=False):
-    query = select(Artist)
+    query = select(Artist).options(
+        joinedload(Artist.image)
+    )
 
     if not full:
-        query = query.where(Artist.scanned == False)
+        query = query.where(Artist.scanned.is_(False))
 
     for item in session.scalars(query):
         scan_artist(item)
@@ -412,15 +416,18 @@ def scan_artist(artist):
 
 
 def scan_albums(full):
-    query = select(Album)
+    query = select(Album).options(
+        joinedload(Album.image)
+    )
 
     if not full:
-        query = query.where(Album.scanned == False)
+        query = query.where(Album.scanned.is_(False))
 
-    for item in session.scalars(query).unique():
+    for item in session.scalars(query):
         scan_album(item)
         item.scanned = True
         time.sleep(1)
+
 
 def scan_album(album):
     if album.music_brainz_id:
@@ -456,37 +463,39 @@ def scan_album(album):
             album.image = save_image(resp.content)
 
 
-def purge(library, start_ts):
-    query = select(Media).where(Media.last_seen < start_ts)
-    for item in session.scalars(query).unique():
-        session.delete(item)
-        item_path = Path(library.path) / item.path
-        logger.info(f"Delete media {item_path}")
-
-    query = select(Directory).where(Directory.last_seen < start_ts)
+def purge(start_ts):
+    query = select(Media).options(joinedload(Media.library))
+    query = query.where(Media.last_seen < start_ts)
     for item in session.scalars(query):
         session.delete(item)
-        item_path = Path(library.path) / item.path
+        item_path = Path(item.library.path) / item.path
+        logger.info(f"Delete media {item_path}")
+
+    query = select(Directory).options(joinedload(Directory.library))
+    query = query.where(Directory.last_seen < start_ts)
+    for item in session.scalars(query):
+        session.delete(item)
+        item_path = Path(item.library.path) / item.path
         logger.info(f"Delete folder {item_path}")
 
-    # Delete unused albums
+    # delete unused albums
 
-    media_q = select(Media.album_id).distinct().where(Media.album_id != None)
-
-    query = select(Album).options(noload("*"))  # type: ignore
-    query = query.where(Album.id.not_in(media_q))
+    media_q = select(Media.album_id).distinct()
+    media_q = media_q.where(Media.album_id.isnot(None))
+    query = select(Album).where(Album.id.not_in(media_q))
 
     for item in session.scalars(query):
         session.delete(item)
         logger.info(f"Delete album {item.name}")
 
-    # Delete unused artists
+    # delete unused artists
 
-    album_q = select(Album.artist_id).distinct().where(Album.artist_id != None)
-    media_q = select(Media.artist_id).distinct().where(Media.artist_id != None)
+    album_q = select(Album.artist_id).distinct()
+    album_q = album_q.where(Album.artist_id.isnot(None))
+    media_q = select(Media.artist_id).distinct()
+    media_q = media_q.where(Media.artist_id.isnot(None))
 
-    query = select(Artist).options(noload("*"))  # type: ignore
-    query = query.where(
+    query = select(Artist).where(
         Artist.id.not_in(album_q),
         Artist.id.not_in(media_q)
     )
@@ -497,15 +506,16 @@ def purge(library, start_ts):
 
     # delete unused images
 
-    artist_q = select(Artist.image_id).distinct().where(Artist.image_id != None)
-    album_q = select(Album.image_id).distinct().where(Album.image_id != None)
-    media_q = select(Media.image_id).distinct().where(Media.image_id != None)
-    directory_q = select(Directory.image_id).distinct().where(
-        Directory.image_id != None
-    )
+    artist_q = select(Artist.image_id).distinct()
+    artist_q = artist_q.where(Artist.image_id.isnot(None))
+    album_q = select(Album.image_id).distinct()
+    album_q = album_q.where(Album.image_id.isnot(None))
+    media_q = select(Media.image_id).distinct()
+    media_q = media_q.where(Media.image_id.isnot(None))
+    directory_q = select(Directory.image_id).distinct()
+    directory_q = directory_q.where(Directory.image_id.isnot(None))
 
-    query = select(Image).options(noload("*"))  # type: ignore
-    query = query.where(
+    query = select(Image).where(
         Image.id.not_in(artist_q),
         Image.id.not_in(album_q),
         Image.id.not_in(media_q),

@@ -31,7 +31,7 @@ u={{user}}&p={{password}}&c=http-client&v=1.15.0&f=json
 POST {{domain}}/rest/getMusicDirectory.view
 Content-Type: application/x-www-form-urlencoded
 
-u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=39da5388-da90-433e-a47c-d43afbfce3c9&f=json
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=39da5388-da90-433e-a47c-d43afbfce3c9
 
 
 ### Returns all genres.
@@ -53,7 +53,7 @@ u={{user}}&p={{password}}&c=http-client&v=1.15.0&f=json
 POST {{domain}}/rest/getArtist.view
 Content-Type: application/x-www-form-urlencoded
 
-u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=f480d7c0-1d24-4b26-81a0-e7a2501f96d2&f=json
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=715e4916-6b24-4074-81bb-7e8bf09f13e2
 
 
 ### Returns details for an album, including a list of songs. This method
@@ -61,14 +61,14 @@ u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=f480d7c0-1d24-4b26-81a0-e7a2
 POST {{domain}}/rest/getAlbum.view
 Content-Type: application/x-www-form-urlencoded
 
-u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=0bfeb33c-e2cf-49fa-92ff-636c1b2f50ac&f=json
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=898a1deb-99f3-4a4b-aed7-1bcf4ae9170f
 
 
 ### Returns details for a song.
 POST {{domain}}/rest/getSong.view
 Content-Type: application/x-www-form-urlencoded
 
-u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=f3b35bb5-a060-4d8a-9e56-bce832edc4e5&f=json
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=6f229735-3398-4baf-9a5e-6f0e239bd238
 
 
 ### Returns artist info with biography, image URLs and similar artists,
@@ -90,14 +90,14 @@ u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=f480d7c0-1d24-4b26-81a0-e7a2
 POST {{domain}}/rest/getAlbumInfo.view
 Content-Type: application/x-www-form-urlencoded
 
-u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=0bfeb33c-e2cf-49fa-92ff-636c1b2f50ac&f=json
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=898a1deb-99f3-4a4b-aed7-1bcf4ae9170f&f=json
 
 
 ### Similar to getAlbumInfo, but organizes music according to ID3 tags.
 POST {{domain}}/rest/getAlbumInfo2.view
 Content-Type: application/x-www-form-urlencoded
 
-u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=0bfeb33c-e2cf-49fa-92ff-636c1b2f50ac&f=json
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=898a1deb-99f3-4a4b-aed7-1bcf4ae9170f&f=json
 
 
 ### Returns a random collection of songs from the given artist and similar
@@ -105,21 +105,21 @@ u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=0bfeb33c-e2cf-49fa-92ff-636c
 POST {{domain}}/rest/getSimilarSongs.view
 Content-Type: application/x-www-form-urlencoded
 
-u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=0bfeb33c-e2cf-49fa-92ff-636c1b2f50ac&f=json
-
-
-### Returns a list of random, newest, highest rated etc. albums.
-POST {{domain}}/rest/getAlbumList.view
-Content-Type: application/x-www-form-urlencoded
-
-u={{user}}&p={{password}}&c=http-client&v=1.15.0&type=highest&f=json
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=715e4916-6b24-4074-81bb-7e8bf09f13e2&f=json
 
 
 ### Similar to getSimilarSongs, but organizes music according to ID3 tags.
 POST {{domain}}/rest/getSimilarSongs2.view
 Content-Type: application/x-www-form-urlencoded
 
-u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=0bfeb33c-e2cf-49fa-92ff-636c1b2f50ac&f=json
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=715e4916-6b24-4074-81bb-7e8bf09f13e2&f=json
+
+
+### Returns a list of random, newest, highest rated etc. albums.
+POST {{domain}}/rest/getAlbumList.view
+Content-Type: application/x-www-form-urlencoded
+
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&type=byGenre&genre=Hard Rock&f=json
 
 
 ### Returns random songs matching the given criteria.
@@ -177,7 +177,7 @@ u={{user}}&p={{password}}&c=http-client&v=1.15.0&artistId=715e4916-6b24-4074-81b
 POST {{domain}}/rest/scrobble.view
 Content-Type: application/x-www-form-urlencoded
 
-u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=df67b1dc-4148-4cea-97c8-834ad1540996&submission=1
+u={{user}}&p={{password}}&c=http-client&v=1.15.0&id=df67b1dc-4148-4cea-97c8-834ad1540996&submission=0
 
 
 ### Get details about a given user, including which authorization roles and

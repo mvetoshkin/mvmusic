@@ -47,14 +47,19 @@ def star_view():
 
 
 def star_media(media_id):
-    media = session.get_one(Media, media_id)
+    query = select(Media).where(
+        Media.library_id.in_([i.id for i in g.current_user.libraries]),
+        Media.id == media_id
+    )
+
+    media = session.scalars(query).one()
 
     try:
         query = select(StarredMedia).where(
             StarredMedia.media_id == media.id,
             StarredMedia.user_id == g.current_user.id
         )
-        session.scalars(query).unique().one()
+        session.scalars(query).one()
 
     except NoResultFound:
         item = StarredMedia(media_id=media.id, user_id=g.current_user.id)
@@ -62,14 +67,19 @@ def star_media(media_id):
 
 
 def star_directory(directory_id):
-    directory = session.get_one(Directory, directory_id)
+    query = select(Directory).where(
+        Directory.library_id.in_([i.id for i in g.current_user.libraries]),
+        Directory.id == directory_id
+    )
+
+    directory = session.scalars(query).unique().one()
 
     try:
         query = select(StarredDirectory).where(
             StarredDirectory.directory_id == directory.id,
             StarredDirectory.user_id == g.current_user.id
         )
-        session.scalars(query).unique().one()
+        session.scalars(query).one()
 
     except NoResultFound:
         item = StarredDirectory(
@@ -80,14 +90,19 @@ def star_directory(directory_id):
 
 
 def star_artist(artist_id):
-    artist = session.get_one(Artist, artist_id)
+    query = select(Artist).join(Artist.media).where(
+        Media.library_id.in_([i.id for i in g.current_user.libraries]),
+        Artist.id == artist_id
+    )
+
+    artist = session.scalars(query).unique().one()
 
     try:
         query = select(StarredArtist).where(
             StarredArtist.artist_id == artist.id,
             StarredArtist.user_id == g.current_user.id
         )
-        session.scalars(query).unique().one()
+        session.scalars(query).one()
 
     except NoResultFound:
         item = StarredArtist(artist_id=artist.id, user_id=g.current_user.id)
@@ -95,14 +110,19 @@ def star_artist(artist_id):
 
 
 def star_album(album_id):
-    album = session.get_one(Album, album_id)
+    query = select(Album).join(Album.media).where(
+        Media.library_id.in_([i.id for i in g.current_user.libraries]),
+        Album.id == album_id
+    )
+
+    album = session.scalars(query).unique().one()
 
     try:
         query = select(StarredAlbum).where(
             StarredAlbum.album_id == album.id,
             StarredAlbum.user_id == g.current_user.id
         )
-        session.scalars(query).unique().one()
+        session.scalars(query).one()
 
     except NoResultFound:
         item = StarredAlbum(album_id=album.id, user_id=g.current_user.id)

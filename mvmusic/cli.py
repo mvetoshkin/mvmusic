@@ -61,13 +61,11 @@ def list_libraries_cmd():
 
 
 @libs_group.command("scan")
-@click.option("--library", "libraries", multiple=True,
-              help="library identifier")
 @click.option("--full", is_flag=True, help="rescan the entire library")
-def scan_libraries_cmd(libraries, full):
+def scan_libraries_cmd(full):
     """Scan libraries"""
 
-    scan_libraries(libraries, full)
+    scan_libraries(full)
 
 
 @cli.group("db")

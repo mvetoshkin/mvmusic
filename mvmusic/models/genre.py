@@ -5,15 +5,6 @@ from mvmusic.models import BaseModel
 
 
 class Genre(BaseModel):
-    name = mapped_column(
-        String,
-        nullable=False,
-        index=True
-    )
+    name = mapped_column(String, index=True, nullable=False)
 
-    media = relationship(
-        "Media",
-        secondary="media_genre",
-        lazy="dynamic",
-        viewonly=True
-    )
+    media = relationship("Media", secondary="media_genre", viewonly=True)

@@ -1,7 +1,7 @@
 from flask import g, request
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
-from werkzeug.exceptions import Forbidden, NotFound
+from werkzeug.exceptions import NotFound
 
 from mvmusic.api.libs.decorators import auth_required, route
 from mvmusic.api.libs.responses import make_response
@@ -16,11 +16,11 @@ def get_user_view():
     username = request.values["username"]
 
     if not g.current_user.is_admin and g.current_user.username != username:
-        raise Forbidden
+        raise NotFound
 
     try:
         query = select(User).where(User.username == username)
-        user = session.scalars(query).unique().one()
+        user = session.scalars(query).one()
     except NoResultFound:
         raise NotFound
 

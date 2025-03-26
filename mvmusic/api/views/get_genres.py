@@ -14,14 +14,15 @@ from mvmusic.models.media import Media
 def get_genres_view():
     library_ids = [i.id for i in g.current_user.libraries]
 
-    query = select(Genre).where(Media.library_id.in_(library_ids))
-    query = query.join(Genre.media)
-    query = query.order_by(Genre.name)
-
     genres = []
     genres_data = get_genres_data(library_ids)
 
-    for genre in session.scalars(query).unique():
+    query = select(Genre).distinct()
+    query = query.outerjoin(Genre.media)
+    query = query.where(Media.library_id.in_(library_ids))
+    query = query.order_by(Genre.name)
+
+    for genre in session.scalars(query):
         data = genres_data[genre.id]
         data["genre"] = genre
         genres.append(data)

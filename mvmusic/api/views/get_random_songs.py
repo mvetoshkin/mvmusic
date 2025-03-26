@@ -1,7 +1,8 @@
 from flask import g, request
 from sqlalchemy import func, select
 from sqlalchemy.exc import NoResultFound
-from werkzeug.exceptions import BadRequest, Forbidden
+from sqlalchemy.orm import joinedload
+from werkzeug.exceptions import BadRequest, NotFound
 
 from mvmusic.api.libs.decorators import auth_required, route
 from mvmusic.api.libs.responses import make_response
@@ -9,7 +10,6 @@ from mvmusic.api.serializers.songs import songs_serializer
 from mvmusic.libs.database import session
 from mvmusic.models.genre import Genre
 from mvmusic.models.media import Media
-from mvmusic.models.media_genre import MediaGenre
 
 
 @route("/getRandomSongs")
@@ -28,23 +28,26 @@ def get_random_songs_view():
 
     if music_folder_id:
         if music_folder_id not in library_ids:
-            raise Forbidden
+            raise NotFound
         library_ids = [music_folder_id]
 
-    query = select(Media).order_by(func.random())
+    query = select(Media).options(
+        joinedload(Media.artist),
+        joinedload(Media.album),
+        joinedload(Media.genres)
+    )
+    query = query.order_by(func.random())
     query = query.where(Media.library_id.in_(library_ids))
 
     if genre:
         try:
-            genre_query = select(Genre).where(
-                func.lower(Genre.name) == func.lower(genre)  # type: ignore
-            )
+            genre_query = select(Genre).where(Genre.name.ilike(genre))
             genre_obj = session.scalars(genre_query).one()
         except NoResultFound:
             raise BadRequest("Genre not found")
 
-        query = query.join(MediaGenre)
-        query = query.where(MediaGenre.genre_id == genre_obj.id)
+        query = query.join(Media.genres)
+        query = query.where(Genre.id == genre_obj.id)
 
     if from_year:
         query = query.where(Media.year >= int(from_year))

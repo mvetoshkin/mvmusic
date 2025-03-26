@@ -1,6 +1,7 @@
-from flask import request
+from flask import g, request
 from sqlalchemy import func, select
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import joinedload
 from werkzeug.exceptions import NotFound
 
 from mvmusic.api.libs.decorators import auth_required, route
@@ -17,10 +18,16 @@ from mvmusic.models.media import Media
 @route("/getArtist")
 @auth_required
 def get_artist_view():
-    artist_id = request.values["id"]
+    query = select(Artist)
+    query = query.options(joinedload(Artist.albums))
+    query = query.join(Artist.media)
+    query = query.where(
+        Media.library_id.in_([i.id for i in g.current_user.libraries]),
+        Artist.id == request.values["id"]
+    )
 
     try:
-        artist = session.get_one(Artist, artist_id)
+        artist = session.scalars(query).unique().one()
     except NoResultFound:
         raise NotFound
 
@@ -44,7 +51,7 @@ def get_albums_data(artist):
         func.string_agg(Genre.name.distinct(), ", ").label("genres")
     )
 
-    query = query.outerjoin(Album.media)
+    query = query.join(Album.media)
     query = query.outerjoin(Media.genres)
     query = query.where(Album.artist_id == artist.id)
     query = query.group_by(Album.id)

@@ -1,5 +1,5 @@
 from sqlalchemy import ForeignKey, Index, Integer, String
-from sqlalchemy.orm import declared_attr, mapped_column, relationship
+from sqlalchemy.orm import mapped_column, relationship
 
 from mvmusic.models import BaseModel
 
@@ -10,26 +10,20 @@ class MediaRating(BaseModel):
     media_id = mapped_column(
         String,
         ForeignKey("media.id", ondelete="cascade"),
+        index=True,
         nullable=False
     )
 
     user_id = mapped_column(
         String,
         ForeignKey("user.id", ondelete="cascade"),
+        index=True,
         nullable=False
     )
 
-    @declared_attr
-    def media(self):
-        return relationship("Media", innerjoin=True, uselist=False)
+    media = relationship("Media", innerjoin=True, uselist=False)
+    user = relationship("User", innerjoin=True, uselist=False)
 
-    @declared_attr
-    def user(self):
-        return relationship("User", innerjoin=True, uselist=False)
-
-
-Index("ix_media_rating_media_id", MediaRating.media_id)
-Index("ix_media_rating_user_id", MediaRating.user_id)
 
 Index(
     "ix_media_rating_media_id_user_id",

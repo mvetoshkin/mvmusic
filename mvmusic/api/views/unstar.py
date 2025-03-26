@@ -25,7 +25,7 @@ def unstar_view():
                     StarredMedia.media_id == entity_id,
                     StarredMedia.user_id == g.current_user.id
                 )
-                item = session.scalars(query).unique().one()
+                item = session.scalars(query).one()
                 session.delete(item)
                 continue
 
@@ -37,7 +37,7 @@ def unstar_view():
                     StarredDirectory.directory_id == entity_id,
                     StarredDirectory.user_id == g.current_user.id
                 )
-                item = session.scalars(query).unique().one()
+                item = session.scalars(query).one()
                 session.delete(item)
 
             except NoResultFound:
@@ -50,7 +50,7 @@ def unstar_view():
                     StarredAlbum.album_id == album_id,
                     StarredAlbum.user_id == g.current_user.id
                 )
-                item = session.scalars(query).unique().one()
+                item = session.scalars(query).one()
                 session.delete(item)
 
             except NoResultFound:
@@ -63,7 +63,7 @@ def unstar_view():
                     StarredArtist.artist_id == artist_id,
                     StarredArtist.user_id == g.current_user.id
                 )
-                item = session.scalars(query).unique().one()
+                item = session.scalars(query).one()
                 session.delete(item)
 
             except NoResultFound:

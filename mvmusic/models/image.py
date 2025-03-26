@@ -5,7 +5,7 @@ from mvmusic.models import BaseModel
 
 
 class Image(BaseModel):
-    path = mapped_column(String, nullable=False)
-    mimetype = mapped_column(String)
-    height = mapped_column(Integer)
-    width = mapped_column(Integer)
+    path = mapped_column(String, nullable=False, unique=True)
+    mimetype = mapped_column(String, nullable=False)
+    height = mapped_column(Integer, nullable=False)
+    width = mapped_column(Integer, nullable=False)

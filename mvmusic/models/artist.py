@@ -1,24 +1,23 @@
-from sqlalchemy import String
+from sqlalchemy import Boolean, ForeignKey, String
 from sqlalchemy.orm import mapped_column, relationship
 
-from mvmusic.models import BaseModel, ImageMixin, ScannedMixin
+from mvmusic.models import BaseModel
 
 
-class Artist(ImageMixin, ScannedMixin, BaseModel):
-    name = mapped_column(String, nullable=False, index=True)
-    notes = mapped_column(String)
-    music_brainz_id = mapped_column(String)
+class Artist(BaseModel):
+    name = mapped_column(String, index=True, nullable=False)
+    scanned = mapped_column(Boolean, default=False, nullable=False)
+
     last_fm_url = mapped_column(String)
+    music_brainz_id = mapped_column(String)
+    notes = mapped_column(String)
 
-    albums = relationship(
-        "Album",
-        lazy="dynamic",
-        viewonly=True,
-        order_by="Album.year.asc(), Album.name.asc()"
+    image_id = mapped_column(
+        String,
+        ForeignKey("image.id", ondelete="set null"),
+        index=True
     )
 
-    media = relationship(
-        "Media",
-        lazy="dynamic",
-        viewonly=True
-    )
+    albums = relationship("Album", order_by="Album.year", viewonly=True)
+    image = relationship("Image", uselist=False)
+    media = relationship("Media", order_by="Media.title", viewonly=True)

@@ -14,15 +14,13 @@ from mvmusic.settings import MEDIA_PATH
 @route("/getCoverArt")
 @auth_required
 def get_cover_art_view():
-    img_id = request.values["id"]
-    size = request.values.get("size")
-
     try:
-        image = session.get_one(Image, img_id)
+        image = session.get_one(Image, request.values["id"])
     except NoResultFound:
         raise NotFound
 
     orig_path = MEDIA_PATH / image.path
+    size = request.values.get("size")
 
     if not size:
         return send_file(orig_path, mimetype=image.mimetype)

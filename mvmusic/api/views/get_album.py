@@ -1,5 +1,7 @@
-from flask import request
+from flask import g, request
+from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import joinedload
 from werkzeug.exceptions import NotFound
 
 from mvmusic.api.libs.decorators import auth_required, route
@@ -8,28 +10,36 @@ from mvmusic.api.serializers.album_with_songs_id3 import \
     album_with_songs_id3_serializer
 from mvmusic.libs.database import session
 from mvmusic.models.album import Album
+from mvmusic.models.media import Media
 
 
 @route("/getAlbum")
 @auth_required
 def get_album_view():
-    album_id = request.values["id"]
+    query = select(Album).options(
+        joinedload(Album.artist),
+        joinedload(Album.media).joinedload(Media.genres)
+    )
+    query = query.join(Album.media)
+    query = query.where(
+        Media.library_id.in_([i.id for i in g.current_user.libraries]),
+        Album.id == request.values["id"]
+    )
 
     try:
-        album = session.get_one(Album, album_id)
+        album = session.scalars(query).unique().one()
     except NoResultFound:
         raise NotFound
 
-    songs = album.media.all()
     genres = set()
     duration = 0
 
-    for item in songs:
+    for item in album.media:
         genres |= {i.name for i in item.genres}
         duration += item.duration or 0
 
     data = album_with_songs_id3_serializer(
-        album, duration, ", ".join(sorted(genres)), songs
+        album, duration, ", ".join(sorted(genres)), album.media
     )
 
     return make_response({"album": data})
