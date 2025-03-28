@@ -18,6 +18,8 @@ from mvmusic.models.starred_media import StarredMedia
 @route("/star")
 @auth_required
 def star_view():
+    """Attaches a star to a song, album or artist."""
+
     entity_ids = request.values.getlist("id")
     album_ids = request.values.getlist("albumId")
     artist_ids = request.values.getlist("artistId")

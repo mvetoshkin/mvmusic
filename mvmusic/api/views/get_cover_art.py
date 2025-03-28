@@ -14,6 +14,8 @@ from mvmusic.settings import MEDIA_PATH
 @route("/getCoverArt")
 @auth_required
 def get_cover_art_view():
+    """Returns a cover art image."""
+
     try:
         image = session.get_one(Image, request.values["id"])
     except NoResultFound:

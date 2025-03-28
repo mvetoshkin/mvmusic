@@ -16,6 +16,8 @@ from mvmusic.models.media import Media
 @route("/getArtistInfo2")
 @auth_required
 def get_artist_info2_view():
+    """Similar to getArtistInfo, but organizes music according to ID3 tags."""
+
     count = int(request.values.get("count", "20"))
 
     query = select(Artist)

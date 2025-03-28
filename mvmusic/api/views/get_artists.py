@@ -18,6 +18,8 @@ from mvmusic.models.media import Media
 @route("/getArtists")
 @auth_required
 def get_artists_view():
+    """Similar to getIndexes, but organizes music according to ID3 tags."""
+
     music_folder_id = request.values.get("musicFolderId")
     library_ids = [i.id for i in g.current_user.libraries]
 

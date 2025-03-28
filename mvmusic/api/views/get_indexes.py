@@ -20,6 +20,8 @@ from mvmusic.models.starred_artist import StarredArtist
 @route("/getIndexes")
 @auth_required
 def get_indexes_view():
+    """Returns an indexed structure of all artists."""
+
     music_folder_id = request.values.get("musicFolderId")
     if_modified_since = request.values.get("ifModifiedSince", 0)
 

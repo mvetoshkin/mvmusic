@@ -20,6 +20,8 @@ from mvmusic.settings import CACHE_PATH, TRANSCODE_CMD
 @route("stream")
 @auth_required
 def stream_view():
+    """Streams a given media file."""
+
     query = select(Media).options(joinedload(Media.library))
     query = query.where(Media.id == request.values["id"])
 

@@ -21,6 +21,9 @@ from mvmusic.models.starred_directory import StarredDirectory
 @route("/getAlbumList")
 @auth_required
 def get_album_list_view():
+    """Returns a list of random, newest, highest rated etc. albums. Similar to
+    the album lists on the home page of the Subsonic web interface."""
+
     list_type = request.values["type"]
 
     size = int(request.values.get("size", "10"))

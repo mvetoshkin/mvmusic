@@ -18,6 +18,9 @@ from mvmusic.models.media import Media
 @route("/getArtist")
 @auth_required
 def get_artist_view():
+    """Returns details for an artist, including a list of albums. This method
+    organizes music according to ID3 tags."""
+
     query = select(Artist)
     query = query.options(joinedload(Artist.albums))
     query = query.join(Artist.media)

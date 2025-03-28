@@ -15,6 +15,8 @@ from mvmusic.models.media import Media
 @route("/getRandomSongs")
 @auth_required
 def get_random_songs_view():
+    """Returns random songs matching the given criteria."""
+
     size = int(request.values.get("size", "10"))
     size = max(size, 1)
     size = min(size, 500)

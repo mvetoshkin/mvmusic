@@ -14,6 +14,9 @@ from mvmusic.models.media import Media
 @route("/download")
 @auth_required
 def download_view():
+    """Downloads a given media file. Similar to stream, but this method returns
+    the original media data without transcoding or downsampling."""
+
     query = select(Media).options(joinedload(Media.library))
     query = query.where(Media.id == request.values["id"])
 

@@ -16,6 +16,9 @@ from mvmusic.models.media import Media
 @route("/getSimilarSongs")
 @auth_required
 def get_similar_songs_view():
+    """Returns a random collection of songs from the given artist and
+    similar artists. Typically used for artist radio features."""
+
     entity_id = request.values["id"]
     count = int(request.values.get("count", "20"))
     similar_songs = process_similar_songs_request(entity_id, count)

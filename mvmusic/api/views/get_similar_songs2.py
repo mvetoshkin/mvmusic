@@ -9,6 +9,8 @@ from mvmusic.api.views.get_similar_songs import process_similar_songs_request
 @route("/getSimilarSongs2")
 @auth_required
 def get_similar_songs2_view():
+    """Similar to getSimilarSongs, but organizes music according to ID3 tags."""
+
     entity_id = request.values["id"]
     count = int(request.values.get("count", "20"))
     similar_songs = process_similar_songs_request(entity_id, count)

@@ -13,6 +13,10 @@ from mvmusic.models.user import User
 @route("/getUser")
 @auth_required
 def get_user_view():
+    """Get details about a given user, including which authorization roles
+    and folder access it has. Can be used to enable/disable certain features
+    in the client."""
+
     username = request.values["username"]
 
     if not g.current_user.is_admin and g.current_user.username != username:

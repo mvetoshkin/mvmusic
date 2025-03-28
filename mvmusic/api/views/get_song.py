@@ -14,6 +14,8 @@ from mvmusic.models.media import Media
 @route("/getSong")
 @auth_required
 def get_song_view():
+    """Returns details for a song."""
+
     query = select(Media).options(
         joinedload(Media.artist),
         joinedload(Media.album),

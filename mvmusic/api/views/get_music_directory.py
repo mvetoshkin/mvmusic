@@ -13,6 +13,9 @@ from mvmusic.models.directory import Directory
 @route("getMusicDirectory")
 @auth_required
 def get_music_directory_view():
+    """Returns a listing of all files in a music directory. Typically used
+    to get list of albums for an artist, or list of songs for an album."""
+
     query = select(Directory).options(
         joinedload(Directory.children),
         joinedload(Directory.media)

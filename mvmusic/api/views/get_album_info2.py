@@ -14,6 +14,8 @@ from mvmusic.models.media import Media
 @route("/getAlbumInfo2")
 @auth_required
 def get_album_info2_view():
+    """Similar to getAlbumInfo, but organizes music according to ID3 tags."""
+
     query = select(Album).join(Album.media)
     query = query.where(
         Media.library_id.in_([i.id for i in g.current_user.libraries]),

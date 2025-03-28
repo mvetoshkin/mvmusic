@@ -5,5 +5,7 @@ from mvmusic.api.serializers.license import license_serializer
 
 @route("/getLicense")
 def get_license_view():
+    """Get details about the software license."""
+
     data = license_serializer(True)
     return make_response({"license": data})

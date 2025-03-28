@@ -12,6 +12,8 @@ from mvmusic.models.media import Media
 @route("/getGenres")
 @auth_required
 def get_genres_view():
+    """Returns all genres."""
+
     library_ids = [i.id for i in g.current_user.libraries]
 
     genres = []

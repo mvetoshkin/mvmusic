@@ -14,6 +14,8 @@ from mvmusic.models.starred_media import StarredMedia
 @route("/unstar")
 @auth_required
 def unstar_view():
+    """Removes the star from a song, album or artist."""
+
     entity_ids = request.values.getlist("id")
     album_ids = request.values.getlist("albumId")
     artist_ids = request.values.getlist("artistId")

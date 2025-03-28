@@ -16,6 +16,8 @@ from mvmusic.models.starred_artist import StarredArtist
 @route("/getArtistInfo")
 @auth_required
 def get_artist_info_view():
+    """Returns artist info with biography, image URLs and similar artists."""
+
     count = int(request.values.get("count", "20"))
 
     query = select(Artist)

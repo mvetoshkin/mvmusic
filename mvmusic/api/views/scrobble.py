@@ -13,6 +13,15 @@ from mvmusic.models.media import Media
 @route("/scrobble")
 @auth_required
 def scrobble_view():
+    """Registers the local playback of one or more media files. Typically used
+    when playing media that is cached on the client. This operation includes
+    the following:
+
+    - Updates the play count and last played timestamp for the media files.
+    - Makes the media files appear in the "Now playing" page in the web app,
+      and appear in the list of songs returned by getNowPlaying
+    """
+
     submission = request.values.get("submission", "1").lower()
     media = session.get_one(Media, request.values["id"])
     now_playing = submission in ("false", "0")

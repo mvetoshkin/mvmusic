@@ -15,6 +15,8 @@ from mvmusic.models.media import Media
 @route("/getSongsByGenre")
 @auth_required
 def get_songs_by_genre_view():
+    """Returns songs in a given genre."""
+
     genre = request.values["genre"]
     offset = int(request.values.get("offset", "0"))
     music_folder_id = request.values.get("musicFolderId")
