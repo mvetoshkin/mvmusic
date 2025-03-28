@@ -9,5 +9,5 @@
 *.log
 *.pyc
 
-http-client.private.env.json
+http-client/
 test.http
