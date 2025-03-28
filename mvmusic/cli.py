@@ -1,9 +1,11 @@
+import unittest
 from pathlib import Path
 
 import click
 from alembic.command import downgrade, revision, upgrade
 from alembic.config import Config
 
+import mvmusic
 from mvmusic.api.app import create_app
 from mvmusic.libs.library import add_library, list_libraries
 from mvmusic.libs.scanner import scan_libraries
@@ -25,6 +27,16 @@ def get_alembic_config(directory):
 @click.version_option(version)
 def cli():
     pass
+
+
+@cli.command("test")
+def test_cmd():
+    """Run tests"""
+
+    loader = unittest.TestLoader()
+    tests = loader.discover(str(Path(mvmusic.__file__).parent))
+    runner = unittest.TextTestRunner()
+    runner.run(tests)
 
 
 @cli.command("api")

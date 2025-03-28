@@ -14,6 +14,7 @@ LOGS_DIR = Path(os.environ.get("MVMUSIC_LOGS_DIR", "")).absolute()
 MEDIA_PATH = Path(os.environ["MVMUSIC_MEDIA_PATH"]).absolute()
 MIGRATIONS_EXCLUDE_TABLES = []
 SQLALCHEMY_DATABASE_URI = os.environ["MVMUSIC_SQLALCHEMY_DATABASE_URI"]
+TEST = os.environ.get("MVMUSIC_TEST", "false") == "true"
 
 # Subsonic API
 
@@ -37,6 +38,9 @@ LOGGING = {
         },
         "require_debug_false": {
             "()": "mvmusic.libs.logger.RequireDebugFalse"
+        },
+        "require_test_false": {
+            "()": "mvmusic.libs.logger.RequireTestFalse"
         }
     },
     "handlers": {
@@ -45,13 +49,13 @@ LOGGING = {
         },
         "console": {
             "class": "logging.StreamHandler",
-            "filters": ["require_debug_true"],
+            "filters": ("require_debug_true", "require_test_false"),
             "formatter": "simple",
             "level": "DEBUG"
         },
         "logfile": {
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filters": ("require_debug_false",),
+            "filters": ("require_debug_false", "require_test_false"),
             "formatter": "simple",
             "level": "INFO",
             "filename": LOGS_DIR / "mvmusic.log",

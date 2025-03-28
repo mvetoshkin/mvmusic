@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 
 from flask import Blueprint, g, request
-from sqlalchemy import select
+from sqlalchemy import Engine, event, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 from werkzeug import exceptions as exc
@@ -18,7 +18,7 @@ from mvmusic.api.serializers.error import error_serializer
 from mvmusic.libs.database import session
 from mvmusic.models.client import Client
 from mvmusic.models.user import User
-from mvmusic.settings import DEBUG
+from mvmusic.settings import DEBUG, TEST
 
 bp = Blueprint("subsonic_api", __name__, url_prefix="/rest")
 logger = logging.getLogger(__name__)
@@ -93,10 +93,8 @@ def get_current_client():
 if DEBUG:
     @bp.after_request
     def after_request(response):
-        if DEBUG:
-            diff = time.time() - g.start
-            logger.debug(f"Request finished in {diff}")
-
+        diff = time.time() - g.start
+        logger.debug(f"Request finished in {diff}")
         return response
 
 
@@ -129,6 +127,21 @@ def error_handler(error):
     }
 
     return make_response(data, status_code)
+
+
+if TEST:
+    # noinspection PyUnusedLocal
+    @event.listens_for(Engine, "before_cursor_execute")
+    def before_cursor_execute(conn, cursor, statement, parameters, context,
+                              executemany):
+        if "query_count" not in g:
+            g.query_count = 0
+        g.query_count += 1
+
+    @bp.after_request
+    def add_query_count(response):
+        response.headers["Query-Count"] = g.get("query_count", 0)
+        return response
 
 
 for file in Path(views.__file__).parent.iterdir():
