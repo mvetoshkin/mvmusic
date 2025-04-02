@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime, ForeignKey, String, Index
+from sqlalchemy import DateTime, ForeignKey, Index, String
 from sqlalchemy.orm import mapped_column, relationship
 
 from mvmusic.models import BaseModel

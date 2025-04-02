@@ -1,7 +1,7 @@
 import logging
 
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
 
 from mvmusic.libs.database import session
 from mvmusic.models.library import Library

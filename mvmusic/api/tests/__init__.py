@@ -1,7 +1,7 @@
-import unittest
+import hashlib
 import random
 import string
-import hashlib
+import unittest
 
 from werkzeug.test import Client
 
