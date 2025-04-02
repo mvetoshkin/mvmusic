@@ -1,7 +1,7 @@
 from flask import Flask
 
 from mvmusic import settings
-from mvmusic.api import bp
+from mvmusic.api.bp import bp
 
 
 def create_app():

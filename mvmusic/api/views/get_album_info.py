@@ -3,8 +3,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from werkzeug.exceptions import NotFound
 
-from mvmusic.api import make_response
 from mvmusic.api.libs.decorators import auth_required, route
+from mvmusic.api.libs.responses import make_response
 from mvmusic.api.serializers.album_info import album_info_serializer
 from mvmusic.libs.database import session
 from mvmusic.models.album import Album

@@ -3,7 +3,7 @@ from functools import wraps
 from flask import g
 from werkzeug.exceptions import Forbidden
 
-from mvmusic.api import bp
+from mvmusic.api.bp import bp
 
 
 def route(rule):
