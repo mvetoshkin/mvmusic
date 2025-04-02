@@ -10,21 +10,20 @@ from mvmusic.api.app import create_app
 
 class BaseClientTest(unittest.TestCase):
     version = "1.14.0"
+    user = "testuser"
 
     def setUp(self):
         app = create_app()
         self.client = Client(app)
 
     def make_request(self, view_name, **kwargs):
-        user = "testuser"
         password = "testpassword"
-
         symbols = string.ascii_lowercase + string.digits
         salt = ''.join(random.choices(symbols, k=6))
         token = hashlib.md5(f"{password}{salt}".encode()).hexdigest()
 
         params = {
-            "u": user,
+            "u": self.user,
             "t": token,
             "s": salt,
             "c": "unittest",
