@@ -1,3 +1,4 @@
+import re
 from mvmusic.libs import omit_nulls
 from mvmusic.models.directory import Directory
 
@@ -10,15 +11,25 @@ def child_serializer(child):
 
     is_dir = isinstance(child, Directory)
 
+    artist = child.artist.name if hasattr(child, "artist") else None
+    title = child.name if is_dir else child.title
+    year = getattr(child, "year", None)
+
+    if is_dir:
+        matches = re.match(r"(\d{4})\s(.*)", title)
+        if matches:
+            year, title = matches.groups()
+            artist = child.parent.name
+
     resp = {
         "id": child.id,
         "parent": child.parent_id,
         "isDir": is_dir,
-        "title": child.name if is_dir else child.title,
+        "title": title,
         "album": child.album.name if hasattr(child, "album") else None,
-        "artist": child.artist.name if hasattr(child, "artist") else None,
+        "artist": artist,
         "track": getattr(child, "track", None),
-        "year": getattr(child, "year", None),
+        "year": year,
         "genre": genres,
         "coverArt": getattr(child, "image_id", None),
         "size": getattr(child, "size", None),

@@ -1,7 +1,7 @@
 from flask import g, request
 from sqlalchemy import func, nullslast, select
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import noload
+from sqlalchemy.orm import joinedload
 from werkzeug.exceptions import BadRequest, NotFound
 
 from mvmusic.api.libs.decorators import auth_required, route
@@ -162,7 +162,7 @@ def get_album_list_view():
     else:
         raise BadRequest("Unsupported list type")
 
-    query = query.options(noload(Directory.library))
+    query = query.options(joinedload(Directory.parent))
     query = query.where(Directory.library_id.in_(library_ids))
     query = query.limit(size)
     query = query.offset(size * offset)
