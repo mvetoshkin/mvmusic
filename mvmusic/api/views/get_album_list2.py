@@ -155,8 +155,6 @@ def get_album_list2_view():
 
 
 def get_albums_data(albums):
-    album_ids = {i.id: i for i in albums}
-
     query = select(
         Album.id,
         func.count(Media.id.distinct()).label("songs_count"),
@@ -166,17 +164,23 @@ def get_albums_data(albums):
 
     query = query.join(Album.media)
     query = query.outerjoin(Media.genres)
-    query = query.where(Album.id.in_(album_ids.keys()))
+    query = query.where(Album.id.in_({i.id for i in albums}))
     query = query.group_by(Album.id)
 
-    albums = []
+    albums_data = {}
 
     for i in session.execute(query):
-        albums.append({
-            "album": album_ids[i.id],
+        albums_data[i.id] = {
             "songs_count": i.songs_count,
             "duration": i.duration,
             "genres": i.genres
-        })
+        }
 
-    return albums
+    albums_list = []
+
+    for album in albums:
+        album_data = albums_data[album.id]
+        album_data["album"] = album
+        albums_list.append(album_data)
+
+    return albums_list
